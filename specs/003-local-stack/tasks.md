@@ -15,16 +15,16 @@ description: "Task list for 003 local-stack"
 
 ## Phase 1: Setup
 
-- [ ] T001 [P] Write docs/adr/0001-standalone-gateway-with-optional-extproc.md (maintainer decision, documented) and docs/adr/0002-state-stores.md (Valkey + PostgreSQL, goose for migrations, pgx driver)
+- [x] T001 [P] Write docs/adr/0001-standalone-gateway-with-optional-extproc.md (maintainer decision, documented) and docs/adr/0002-state-stores.md (Valkey + PostgreSQL, goose for migrations, pgx driver)
 - [ ] T002 Add OpenTelemetry and Prometheus dependencies at the versions in research R5
 
 ## Phase 2: User Story 2 — Policy pipeline contract (P1, foundational for every other story)
 
-- [ ] T003 [P] [US2] Tests for hook order, Deny, Respond, Mutate and `ran` semantics in internal/pipeline/pipeline_test.go
-- [ ] T004 [US2] Implement Stage, hooks, Decision, Request, Response, Chunk and Pipeline in internal/pipeline/pipeline.go per contracts/pipeline.md
-- [ ] T005 [P] [US2] Request-ID Stage in internal/pipeline/requestid.go: propagate a valid `x-request-id` ("1–128 printable ASCII characters") or generate `req_` + 24 base62 characters; add it upstream and to the response; tests
-- [ ] T006 [P] [US2] Timing Stage in internal/pipeline/timing.go: stamps arrival and exposes per-Stage durations for the overhead metric; tests
-- [ ] T007 [US2] Micro-benchmark of the empty pipeline (request-ID + timing) in internal/pipeline/bench_test.go; record baseline numbers in docs/local-stack.md (SC-002)
+- [x] T003 [P] [US2] Tests for hook order, Deny, Respond, Mutate and `ran` semantics in internal/pipeline/pipeline_test.go
+- [x] T004 [US2] Implement Stage, hooks, Decision, Request, Response, Chunk and Pipeline in internal/pipeline/pipeline.go per contracts/pipeline.md
+- [x] T005 [P] [US2] Request-ID Stage in internal/pipeline/requestid.go: propagate a valid `x-request-id` ("1–128 printable ASCII characters") or generate `req_` + 24 base62 characters; add it upstream and to the response; tests
+- [x] T006 [P] [US2] Timing Stage in internal/pipeline/timing.go: stamps arrival and exposes per-Stage durations for the overhead metric; tests
+- [x] T007 [US2] Micro-benchmark of the empty pipeline (request-ID + timing) in internal/pipeline/bench_test.go; record baseline numbers in docs/local-stack.md (SC-002)
 
 ## Phase 3: User Story 1 — Faithful streaming passthrough (P1)
 
@@ -73,10 +73,10 @@ Phase 5 (needs `serve` and `probe`) → Phase 6 (needs the stack) → Phase 7.
 
 | PR | Branch | Tasks |
 | --- | --- | --- |
-| 1 | `003-local-stack` | Spec Kit artifacts, T001–T007 (ADRs, pipeline) |
+| 1 | `003-local-stack` | Spec Kit artifacts, T001, T003–T007 (ADRs, pipeline) |
 | 2 | `003-local-stack-iter1` | T008–T010 (config schema, config, SSE) |
 | 3 | `003-local-stack-iter2` | T011–T015 (upstream, API server, drain, `serve`, benchmark) |
-| 4 | `003-local-stack-iter3` | T016–T020 (telemetry, health, ops server, `probe`) |
+| 4 | `003-local-stack-iter3` | T002, T016–T020 (dependencies where first used, telemetry, health, ops server, `probe`) |
 | 5 | `003-local-stack-iter4` | T021–T025 (Compose stack, `make up/down/smoke`) |
 | 6 | `003-local-stack-iter5` | T026–T030 (e2e tests, `e2e-local`, docs) |
 

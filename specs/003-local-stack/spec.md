@@ -153,7 +153,8 @@ Readiness reflects the health of each configured dependency according to its dec
   a Stage decision MUST be one of continue, mutate, deny (protocol-correct error) or respond
   (short-circuit).
 - **FR-007**: Response and chunk hooks MUST run in reverse order of the request hooks, and only for
-  Stages whose request hook ran.
+  Stages that let the request through (a Stage that denies or short-circuits does not run its own
+  response hook).
 - **FR-008**: The request-ID Stage MUST propagate a valid incoming `x-request-id` (or generate one), send
   it upstream and return it to the client.
 - **FR-009**: The timing Stage MUST record per-Stage and total gateway overhead (time not spent waiting
