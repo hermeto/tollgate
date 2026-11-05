@@ -130,6 +130,9 @@ var jsonNull = json.RawMessage("null")
 
 func (s *Server) registerOpenAI() {
 	s.mux.HandleFunc("POST /v1/chat/completions", s.requireAuth(s.handleOpenAIChat))
+	s.mux.HandleFunc("POST /v1/embeddings", s.requireAuth(s.handleOpenAIEmbeddings))
+	s.mux.HandleFunc("GET /v1/models", s.requireAuth(s.handleOpenAIModels))
+	s.mux.HandleFunc("GET /v1/models/{model}", s.requireAuth(s.handleOpenAIModel))
 }
 
 // reply is the generated answer to a chat request.

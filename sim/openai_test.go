@@ -190,7 +190,8 @@ func TestOpenAIReplayIsDeterministic(t *testing.T) {
 			_, body := doReq(t, http.MethodPost, ts.URL+"/v1/chat/completions", r, oaiAuth)
 			out = append(out, volatile.ReplaceAllString(string(body), `"$1":"*"`))
 		}
-		return out
+		_, emb := doReq(t, http.MethodPost, ts.URL+"/v1/embeddings", `{"model":"text-embedding-3-small","input":"x"}`, oaiAuth)
+		return append(out, string(emb))
 	}
 	a, b, c := run(42), run(42), run(43)
 	for i := range a {

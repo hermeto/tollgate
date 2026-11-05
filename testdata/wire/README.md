@@ -28,4 +28,7 @@ Sources, read on 2026-11-05:
 | `chat_completion_stream.sse` | stream without usage | Streaming reference example |
 | `chat_completion_stream_usage.sse` | stream with `stream_options.include_usage` (usage `null` on every chunk, final chunk with `choices: []`) | Streaming reference, `stream_options` description |
 | `chat_completion_tool_call_stream.sse` | streamed tool call deltas | `chat_completion_chunk.py` (`ChoiceDeltaToolCall`) |
+| `embeddings_float.json` | `encoding_format: float` | Embeddings API reference example |
+| `embeddings_base64.json` | `encoding_format: base64` (little-endian float32; the SDKs request this by default) | `resources/embeddings.py` in openai-python v3.46.0 |
+| `models.json` | model list | Models API reference example |
 | `error_401.json`, `error_404_model.json`, `error_429.json` | error bodies | Error codes guide |
