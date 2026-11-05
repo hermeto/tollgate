@@ -34,9 +34,9 @@ implementation inside each story.
 
 ## Phase 3: User Story 5 — Documented token counting (P1)
 
-- [ ] T010 [P] [US5] Tests for internal/tokens (pieces, CJK, digits, code, empty string, message overhead) in internal/tokens/tokens_test.go
-- [ ] T011 [US5] Implement internal/tokens/tokens.go: RE2 pre-tokenizer, `Count(text)`, `CountChat(messages)` (+3 per message, +3 priming)
-- [ ] T012 [P] [US5] Implement sim/generate.go: deterministic word-piece generator (one piece = one token) and output length sampling clamped by request max tokens; tests
+- [x] T010 [P] [US5] Tests for internal/tokens (pieces, CJK, digits, code, empty string, message overhead) in internal/tokens/tokens_test.go
+- [x] T011 [US5] Implement internal/tokens/tokens.go: RE2 pre-tokenizer, `Count(text)`, `CountChat(messages)` (+3 per message, +3 priming)
+- [x] T012 [P] [US5] Implement sim/generate.go: deterministic word-piece generator (one piece = one token) and output length sampling clamped by request max tokens; tests
 
 ## Phase 4: User Story 1 — OpenAI flavour (P1)
 
