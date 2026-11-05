@@ -57,7 +57,7 @@ scripts are tested first.
 - [ ] T015 [P] [US2] Tests for scripts/check-dco.sh in internal/repotest/dco_test.go using a temporary git repository (signed, unsigned, merge commit, trailer only in body)
 - [ ] T016 [US2] Implement scripts/ci-gate.sh in Bash with jq (preinstalled on GitHub runners; checked by dev-setup)
 - [ ] T017 [US2] Implement scripts/check-dco.sh
-- [ ] T018 [US2] Create .github/workflows/ci.yml: lint, test, security (Trivy image by digest), pr-title, dco, dependency-review, ci-gate; pull_request on any base and push to main; read-only permissions, concurrency, timeouts
+- [ ] T018 [US2] Create .github/workflows/ci.yml (lint job runs `make dev-setup` on Linux to prove the no-Homebrew path): lint, test, security (Trivy image by digest), pr-title, dco, dependency-review, ci-gate; pull_request on any base and push to main; read-only permissions, concurrency, timeouts
 - [ ] T019 [P] [US2] Repository invariant tests in internal/repotest/workflows_test.go: every `uses:` pinned to a 40-hex SHA with a version comment, every workflow has top-level `permissions`, `concurrency`, and per-job `timeout-minutes`
 - [ ] T020 [P] [US2] Add .github/rulesets/main.json (playbook §4.4) and .github/labels.yml (playbook §4.4 labels) with .github/workflows/labels.yml sync on push to main
 - [ ] T021 [P] [US2] Add .github/dependabot.yml (gomod root and tools/, uv, github-actions, docker; weekly; grouped; Conventional prefixes)
