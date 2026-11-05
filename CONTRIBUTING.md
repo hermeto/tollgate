@@ -10,7 +10,8 @@ By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Securit
 ## Development setup
 
 You need **git**, **Go** (any Go ≥ 1.21; the exact toolchain pinned in `go.mod` is downloaded
-automatically), **uv** and **jq**. Docker is needed from feature 003 onwards (`make up`).
+automatically), **uv** and **jq**. Docker is needed from feature 003 onwards (`make up`), and Node.js
+(npm) only for `make sdk-compat`.
 
 | Platform | Install |
 | --- | --- |
@@ -22,6 +23,7 @@ Then:
 ```bash
 make dev-setup    # pinned Go tools (tools/go.mod) + pre-commit hooks; no Homebrew needed
 make lint test    # every linter + race-enabled tests
+make sdk-compat   # official OpenAI and Anthropic SDKs against the simulators (needs uv and npm)
 make help         # all targets
 ```
 

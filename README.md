@@ -16,7 +16,8 @@ latency and saves in dollars.
 
 ## Documentation
 
-- [Provider simulator](docs/simulator.md) — `tollgate sim`, the deterministic OpenAI and Anthropic test double.
+- [Provider simulator](docs/simulator.md) — `tollgate sim`, the deterministic OpenAI and Anthropic test double
+  (`make sdk-compat` runs the official SDKs against it).
 
 ## Contributing
 

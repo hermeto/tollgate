@@ -72,6 +72,31 @@ jobs:
           fs --no-progress --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --exit-code 1
           --skip-dirs .specify --skip-dirs .claude .
 
+  sdk-compat:
+    name: sdk-compat
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            test/sdk/go/go.sum
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26.13.0
+          cache: npm
+          cache-dependency-path: test/sdk/node/package-lock.json
+      # Official OpenAI and Anthropic SDKs (Python, TypeScript, Go) against both simulators.
+      - run: make sdk-compat
+
   pr-title:
     name: pr-title
     if: github.event_name == 'pull_request'
@@ -130,7 +155,7 @@ jobs:
   ci-gate:
     name: ci-gate
     if: always()
-    needs: [lint, test, security, pr-title, dco, dependency-review]
+    needs: [lint, test, security, sdk-compat, pr-title, dco, dependency-review]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

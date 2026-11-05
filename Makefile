@@ -33,3 +33,7 @@ test: ## Run Go tests with the race detector
 .PHONY: bench-micro
 bench-micro: ## Run Go micro-benchmarks
 	$(GO) test -run '^$$' -bench . -benchmem ./...
+
+.PHONY: sdk-compat
+sdk-compat: ## Run the official OpenAI and Anthropic SDKs (Python, TypeScript, Go) against the simulators
+	TARGET=$(or $(TARGET),sim) scripts/sdk-compat.sh

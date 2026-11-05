@@ -1,0 +1,12 @@
+[project]
+name = "tollgate-sdk-compat"
+version = "0.0.0"
+description = "Runs the official OpenAI and Anthropic Python SDKs against the Tollgate simulators (or gateway)."
+requires-python = ">=3.11"
+dependencies = [
+  "openai==3.46.0",
+  "anthropic==2.5.0",
+]
+
+[tool.uv]
+package = false

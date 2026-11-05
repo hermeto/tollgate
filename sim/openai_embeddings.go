@@ -1,12 +1,15 @@
 package sim
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
+	"time"
 
 	"github.com/hermeto/tollgate/internal/tokens"
 )
@@ -31,6 +34,10 @@ func (s *Server) handleOpenAIEmbeddings(w http.ResponseWriter, r *http.Request) 
 	}
 	p, ok := s.applyFaults(w, r, requestHash(r.URL.Path, body))
 	if !ok {
+		return
+	}
+	if s.cfg.Embeddings.ForwardURL != "" {
+		s.forwardEmbeddings(w, r, body)
 		return
 	}
 	var req oaiEmbeddingsRequest
@@ -166,4 +173,38 @@ func (s *Server) handleOpenAIModel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.writeJSON(w, http.StatusOK, map[string]any{"id": m, "object": "model", "created": modelCreated, "owned_by": "tollgate-sim"})
+}
+
+// forwardTimeout bounds a forwarded embeddings call so a stuck embedding server fails fast.
+const forwardTimeout = 30 * time.Second
+
+var forwardClient = &http.Client{Timeout: forwardTimeout}
+
+// forwardEmbeddings proxies the request unchanged to the configured local embedding server (spec
+// FR-009, US7). This is the simulator's only outbound call; it never targets a provider.
+func (s *Server) forwardEmbeddings(w http.ResponseWriter, r *http.Request, body []byte) {
+	req, err := http.NewRequestWithContext(r.Context(), http.MethodPost, s.cfg.Embeddings.ForwardURL, bytes.NewReader(body))
+	if err != nil {
+		s.writeError(w, http.StatusBadGateway, errServer, "embeddings forward: "+err.Error())
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := forwardClient.Do(req)
+	if err != nil {
+		s.writeError(w, http.StatusBadGateway, errServer, "embeddings forward failed: "+err.Error())
+		return
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes))
+	if err != nil {
+		s.writeError(w, http.StatusBadGateway, errServer, "embeddings forward: reading response: "+err.Error())
+		return
+	}
+	if resp.StatusCode >= 500 {
+		s.writeError(w, http.StatusBadGateway, errServer, fmt.Sprintf("embeddings forward target returned %d", resp.StatusCode))
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	_, _ = w.Write(data)
 }

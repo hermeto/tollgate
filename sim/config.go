@@ -142,10 +142,10 @@ func DefaultConfig(f Flavor) Config {
 	switch f {
 	case FlavorAnthropic:
 		cfg.Port = 9002
-		cfg.Models = []string{"claude-opus-4-1", "claude-sonnet-4-5", "claude-haiku-4-5"}
+		cfg.Models = []string{"claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"}
 	default:
 		cfg.Port = 9001
-		cfg.Models = []string{"gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini", "text-embedding-3-small", "text-embedding-3-large"}
+		cfg.Models = []string{"gpt-5.5", "gpt-5.4-mini", "gpt-5.4-nano", "gpt-4o-mini", "text-embedding-3-small", "text-embedding-3-large"}
 	}
 	return cfg
 }

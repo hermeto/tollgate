@@ -2,7 +2,7 @@
 version: 2
 updates:
   - package-ecosystem: gomod
-    directories: ["/", "/tools"]
+    directories: ["/", "/tools", "/test/sdk/go"]
     schedule:
       interval: weekly
     commit-message:
@@ -12,9 +12,9 @@ updates:
     groups:
       go-modules:
         patterns: ["*"]
-  # Python report generator (report/, feature 017); no-op until report/uv.lock exists.
+  # Python: SDK compatibility clients now, report generator (report/) from feature 017.
   - package-ecosystem: uv
-    directory: /report
+    directories: ["/test/sdk/python", "/report"]
     schedule:
       interval: weekly
     commit-message:
@@ -23,6 +23,17 @@ updates:
     labels: [dependencies]
     groups:
       python:
+        patterns: ["*"]
+  - package-ecosystem: npm
+    directory: /test/sdk/node
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+      include: scope
+    labels: [dependencies]
+    groups:
+      npm:
         patterns: ["*"]
   - package-ecosystem: github-actions
     directory: /

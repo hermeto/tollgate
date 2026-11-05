@@ -1,0 +1,16 @@
+{
+  "name": "tollgate-sdk-compat",
+  "private": true,
+  "description": "Runs the official OpenAI and Anthropic TypeScript SDKs against the Tollgate simulators (or gateway).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "compat": "node compat.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.5.0",
+    "openai": "7.51.0"
+  }
+}
