@@ -4,8 +4,11 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
+	"io"
 	"math"
 	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -95,5 +98,34 @@ func TestOpenAIEmbeddingsRejectOversizedDimensions(t *testing.T) {
 	req := `{"model":"text-embedding-3-small","input":"x","dimensions":1000000000}`
 	if status, _ := doReq(t, http.MethodPost, ts.URL+"/v1/embeddings", req, oaiAuth); status != http.StatusBadRequest {
 		t.Fatalf("status %d, want 400", status)
+	}
+}
+
+func TestEmbeddingsForward(t *testing.T) {
+	var gotBody string
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		gotBody = string(b)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"object":"list","data":[{"object":"embedding","embedding":[0.5,0.5],"index":0}],"model":"bge-small","usage":{"prompt_tokens":1,"total_tokens":1}}`))
+	}))
+	defer upstream.Close()
+	cfg := DefaultConfig(FlavorOpenAI)
+	cfg.Embeddings.ForwardURL = upstream.URL + "/v1/embeddings"
+	s, err := New(cfg, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ts := httptest.NewServer(s.Handler())
+	defer ts.Close()
+	req := `{"model":"bge-small","input":"hello"}`
+	status, body := doReq(t, http.MethodPost, ts.URL+"/v1/embeddings", req, oaiAuth)
+	if status != http.StatusOK || !strings.Contains(string(body), `"model":"bge-small"`) || gotBody != req {
+		t.Fatalf("forward: %d %s (upstream got %q)", status, body, gotBody)
+	}
+	upstream.Close() // target down: 502, never synthetic vectors
+	status, body = doReq(t, http.MethodPost, ts.URL+"/v1/embeddings", req, oaiAuth)
+	if status != http.StatusBadGateway || !strings.Contains(string(body), "server_error") {
+		t.Fatalf("target down: %d %s", status, body)
 	}
 }
