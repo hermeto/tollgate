@@ -19,14 +19,14 @@ implementation inside each story.
 
 ## Phase 1: Setup
 
-- [ ] T001 Add dependencies (cobra v1.10.2, jsonschema/v6 v6.0.3) to go.mod
-- [ ] T002 Move the CLI to cobra: root command, `version` subcommand and `--version` flag in cmd/tollgate/main.go and cmd/tollgate/root.go; keep the version output contract from 001 (cmd/tollgate/main_test.go)
+- [x] T001 Add dependencies (cobra v1.10.2, jsonschema/v6 v6.0.3) to go.mod
+- [x] T002 Move the CLI to cobra: root command, `version` subcommand and `--version` flag in cmd/tollgate/main.go and cmd/tollgate/root.go; keep the version output contract from 001 (cmd/tollgate/main_test.go)
 
 ## Phase 2: Foundational (blocking)
 
-- [ ] T003 [P] Write schemas/sim.schema.json (draft 2020-12) per data-model.md: Distribution `kind` "fixed|normal|lognormal", rates "0–1", sum of `error_rates` and `reset_rate` "≤ 1" checked in code
-- [ ] T004 [P] Add schemas/schemas.go embedding *.json and a `Validate(name, doc)` helper with tests in schemas/schemas_test.go
-- [ ] T005 Implement sim/config.go: defaults per flavour (ports 9001/9002, seed 42, output normal(120, 40, 1..1024), dims 1536, log size 1000), YAML load, schema validation, flag overrides; tests in sim/config_test.go (valid file, unknown field, rate sum > 1)
+- [x] T003 [P] Write schemas/sim.schema.json (draft 2020-12) per data-model.md: Distribution `kind` "fixed|normal|lognormal", rates "0–1", sum of `error_rates` and `reset_rate` "≤ 1" checked in code
+- [x] T004 [P] Add schemas/schemas.go embedding *.json and a `Validate(name, doc)` helper with tests in schemas/schemas_test.go
+- [x] T005 Implement sim/config.go: defaults per flavour (ports 9001/9002, seed 42, output normal(120, 40, 1..1024), dims 1536, log size 1000), YAML load, schema validation, flag overrides; tests in sim/config_test.go (valid file, unknown field, rate sum > 1)
 - [ ] T006 [P] Implement sim/rng.go: content RNG = PCG(seed, fnv64(body)); latency RNG seeded with seed, body hash and occurrence count (FR-019); tests for determinism and independence
 - [ ] T007 [P] Implement sim/sse.go (event/data framing, flush after each event) with tests
 - [ ] T008 Implement sim/server.go: flavour routing, auth-header check (FR-016), `/_sim/healthz`, graceful shutdown with 5 s grace (FR-020), bind 127.0.0.1 by default (FR-018); tests in sim/server_test.go
@@ -100,13 +100,17 @@ T013 fixtures   T014 fixture tests   # in parallel, then T015–T017 sequentiall
 
 ## PR slices (stacked, each < 800 changed lines excluding fixtures, lockfiles and Spec Kit artifacts)
 
-| PR | Branch | Phases |
+Re-sliced during implementation: the first estimate (5 slices) put about 2,000 lines in slice 1.
+
+| PR | Branch | Tasks |
 | --- | --- | --- |
-| 1 | `002-provider-simulator` | Spec Kit artifacts, Phases 1–3 |
-| 2 | `002-provider-simulator-iter1` | Phase 4 (US1) |
-| 3 | `002-provider-simulator-iter2` | Phases 5 and 8 (US2, US6) |
-| 4 | `002-provider-simulator-iter3` | Phases 6 and 7 (US3, US4) |
-| 5 | `002-provider-simulator-iter4` | Phases 9–11 |
+| 1 | `002-provider-simulator` | Spec Kit artifacts, T001–T005 (CLI, schema, config) |
+| 2 | `002-provider-simulator-iter1` | T006–T009 (RNG, SSE, server skeleton, `tollgate sim`) |
+| 3 | `002-provider-simulator-iter2` | T010–T012 (US5 token counting, generator) |
+| 4 | `002-provider-simulator-iter3` | T013–T017 (US1 OpenAI flavour) |
+| 5 | `002-provider-simulator-iter4` | T018–T020, T025–T026 (US2 Anthropic, US6 request log) |
+| 6 | `002-provider-simulator-iter5` | T021–T024 (US3 latency, US4 faults) |
+| 7 | `002-provider-simulator-iter6` | T027–T036 (US7, SDK compatibility, polish) |
 
 Feature 003 branches from the last slice.
 

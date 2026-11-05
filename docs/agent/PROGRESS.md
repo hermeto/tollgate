@@ -6,21 +6,23 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 002 provider-simulator — slice 1 of 5 (`002-provider-simulator`) |
-| Spec Kit phase | implement (Phases 1–3) |
-| Last commit | `docs(agent): record 002 slices` on `002-provider-simulator` |
-| Next step | implement 002 Phases 1–3, then slices iter1–iter4 (see specs/002-provider-simulator/tasks.md "PR slices") |
+| Current feature | 002 provider-simulator — slice 1 of 7 (`002-provider-simulator`) |
+| Spec Kit phase | implement |
+| Last commit | `feat(simulator): add simulator configuration and JSON Schema` on `002-provider-simulator` |
+| Next step | CI on PR #5; then slice 2 (`002-provider-simulator-iter1`) from the local backup branch `tmp-002-impl` |
 
 ## Features (merge order)
 
 | # | Branch | Local status | PR | PR body draft |
 | --- | --- | --- | --- | --- |
 | 001 | `001-repo-foundation` | done; CI green | [#4](https://github.com/hermeto/tollgate/pull/4) ready | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
-| 002 (1/5) | `002-provider-simulator` | implementing | draft (opened at step 7) | [pr-bodies/002-provider-simulator.md](pr-bodies/002-provider-simulator.md) |
-| 002 (2/5) | `002-provider-simulator-iter1` | pending | — | — |
-| 002 (3/5) | `002-provider-simulator-iter2` | pending | — | — |
-| 002 (4/5) | `002-provider-simulator-iter3` | pending | — | — |
-| 002 (5/5) | `002-provider-simulator-iter4` | pending | — | — |
+| 002 (1/7) | `002-provider-simulator` | CLI, schema, config | [#5](https://github.com/hermeto/tollgate/pull/5) | [pr-bodies/002-provider-simulator.md](pr-bodies/002-provider-simulator.md) |
+| 002 (2/7) | `002-provider-simulator-iter1` | server skeleton (code on `tmp-002-impl`) | — | — |
+| 002 (3/7) | `002-provider-simulator-iter2` | tokens, generator (code on `tmp-002-impl`) | — | — |
+| 002 (4/7) | `002-provider-simulator-iter3` | pending: OpenAI flavour | — | — |
+| 002 (5/7) | `002-provider-simulator-iter4` | pending: Anthropic, request log | — | — |
+| 002 (6/7) | `002-provider-simulator-iter5` | pending: latency, faults | — | — |
+| 002 (7/7) | `002-provider-simulator-iter6` | pending: SDK compat, polish | — | — |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
@@ -104,4 +106,5 @@ Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) a
 ## Evidence log
 
 - 001 SC-001: fresh clone `make dev-setup && make lint test` → exit 0 in 7.4 s (warm Go and pre-commit caches, M-series Mac).
+- 002 tokens: o200k_base mean absolute error 7.4% (holdout 5.8%), bias +2.2%; 4.2 µs per 4 KB.
 - 001 SC-003/SC-006: PR #4 first run — every check green; `ci-gate` reported ~2.5 min after the push (lint 1m56s is the longest job).

@@ -1,19 +1,19 @@
 ## Summary
 
-Slice 1 of 5 of the provider simulator (`tollgate sim`): Spec Kit artifacts for the whole feature, the
-cobra CLI, the simulator configuration with JSON Schema validation, the HTTP server skeleton (auth
-check, health, graceful shutdown, loopback default), deterministic RNG, SSE writer, the text generator
-and the shared token-counting approximation (`internal/tokens`).
+Slice 1 of 7 of the provider simulator (`tollgate sim`): the Spec Kit artifacts for the whole feature,
+the move of the `tollgate` CLI to cobra, and the simulator configuration (`sim.Config`) loaded from YAML
+and validated by `schemas/sim.schema.json`, with flavor defaults, flag overrides and the semantic checks
+the schema cannot express (fault rates summing above 1, min above max, 529 outside Anthropic).
 Spec: [`specs/002-provider-simulator/spec.md`](https://github.com/hermeto/tollgate/blob/002-provider-simulator/specs/002-provider-simulator/spec.md). Tracking: #3.
 
 ## Stack
 
-Based on #4; merge after it. Next slice: `002-provider-simulator-iter1` (OpenAI flavour).
+Based on #4; merge after it. Next slice: `002-provider-simulator-iter1` (server skeleton).
 
 ## Requirements covered
 
-Feature spec FR-001 (CLI), FR-008 (token method), FR-011 (config schema), FR-014, FR-016, FR-018,
-FR-019, FR-020. Product spec NFR-7, NFR-8 (groundwork).
+Feature spec FR-011 (config validated by a JSON Schema) and the configuration part of FR-005, FR-007
+and FR-009. The CLI, endpoints and behaviour arrive in later slices.
 
 ## Decisions for the reviewer
 

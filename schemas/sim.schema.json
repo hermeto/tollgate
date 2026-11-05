@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hermeto/tollgate/schemas/sim.schema.json",
+  "title": "Tollgate provider simulator configuration",
+  "description": "Configuration for `tollgate sim`. Latency distributions are in milliseconds; output_tokens in tokens.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "flavor": { "enum": ["openai", "anthropic"] },
+    "host": { "type": "string", "minLength": 1 },
+    "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+    "seed": { "type": "integer", "minimum": 0 },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ttft": { "$ref": "#/$defs/distribution" },
+        "inter_token": { "$ref": "#/$defs/distribution" }
+      }
+    },
+    "output_tokens": { "$ref": "#/$defs/distribution" },
+    "embeddings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dimensions": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "forward_url": { "type": "string", "pattern": "^(https?://.+)?$" }
+      }
+    },
+    "request_log": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "size": { "type": "integer", "minimum": 0, "maximum": 100000 }
+      }
+    },
+    "faults": { "$ref": "#/$defs/faults" }
+  },
+  "$defs": {
+    "rate": { "type": "number", "minimum": 0, "maximum": 1 },
+    "duration": {
+      "type": "string",
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$",
+      "description": "Go duration, for example 500ms, 5s, 1m30s"
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["fixed", "normal", "lognormal"] },
+        "value": { "type": "number", "minimum": 0 },
+        "mean": { "type": "number", "minimum": 0 },
+        "stddev": { "type": "number", "minimum": 0 },
+        "mu": { "type": "number" },
+        "sigma": { "type": "number", "minimum": 0 },
+        "min": { "type": "number", "minimum": 0 },
+        "max": { "type": "number", "minimum": 0 }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "fixed" } } }, "then": { "required": ["value"] } },
+        { "if": { "properties": { "kind": { "const": "normal" } } }, "then": { "required": ["mean", "stddev"] } },
+        { "if": { "properties": { "kind": { "const": "lognormal" } } }, "then": { "required": ["mu", "sigma"] } }
+      ]
+    },
+    "faults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "error_rates": {
+          "type": "object",
+          "propertyNames": { "pattern": "^(429|500|503|529)$" },
+          "additionalProperties": { "$ref": "#/$defs/rate" }
+        },
+        "retry_after_seconds": { "type": "integer", "minimum": 0 },
+        "reset_rate": { "$ref": "#/$defs/rate" },
+        "timeout_before_first_token": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rate", "duration"],
+          "properties": {
+            "rate": { "$ref": "#/$defs/rate" },
+            "duration": { "$ref": "#/$defs/duration" }
+          }
+        },
+        "stall_mid_stream": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rate", "after_tokens", "duration"],
+          "properties": {
+            "rate": { "$ref": "#/$defs/rate" },
+            "after_tokens": { "type": "integer", "minimum": 0 },
+            "duration": { "$ref": "#/$defs/duration" }
+          }
+        },
+        "outage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["duration"],
+          "properties": {
+            "start_after": { "$ref": "#/$defs/duration" },
+            "duration": { "$ref": "#/$defs/duration" },
+            "status": { "enum": [429, 500, 503, 529] },
+            "start": { "type": "string", "format": "date-time", "description": "Set by the simulator when the window is applied." },
+            "end": { "type": "string", "format": "date-time", "description": "Set by the simulator when the window is applied." }
+          }
+        }
+      }
+    }
+  }
+}
