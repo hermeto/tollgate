@@ -29,6 +29,10 @@ func (s *Server) handleOpenAIEmbeddings(w http.ResponseWriter, r *http.Request) 
 	if !ok {
 		return
 	}
+	p, ok := s.applyFaults(w, r, requestHash(r.URL.Path, body))
+	if !ok {
+		return
+	}
 	var req oaiEmbeddingsRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		s.writeError(w, http.StatusBadRequest, errInvalidRequest, "We could not parse the JSON body of your request: "+err.Error())
@@ -65,6 +69,9 @@ func (s *Server) handleOpenAIEmbeddings(w http.ResponseWriter, r *http.Request) 
 		}
 		data[i] = oaiEmbedding{Object: "embedding", Embedding: emb, Index: i}
 		promptTokens += tokens.Count(in)
+	}
+	if !p.first() { // embeddings have no token stream: time to first token is the processing time
+		return
 	}
 	w.Header().Set("X-Request-Id", newID("req_", 32))
 	s.writeJSON(w, http.StatusOK, map[string]any{
@@ -138,7 +145,10 @@ func encodeFloat32Base64(vec []float32) string {
 // modelCreated is a fixed timestamp so /v1/models is deterministic.
 const modelCreated = 1721172741
 
-func (s *Server) handleOpenAIModels(w http.ResponseWriter, _ *http.Request) {
+func (s *Server) handleOpenAIModels(w http.ResponseWriter, r *http.Request) {
+	if _, ok := s.applyFaults(w, r, requestHash(r.URL.Path, nil)); !ok {
+		return
+	}
 	data := make([]map[string]any, 0, len(s.cfg.Models))
 	for _, m := range s.cfg.Models {
 		data = append(data, map[string]any{"id": m, "object": "model", "created": modelCreated, "owned_by": "tollgate-sim"})
@@ -147,6 +157,9 @@ func (s *Server) handleOpenAIModels(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) handleOpenAIModel(w http.ResponseWriter, r *http.Request) {
+	if _, ok := s.applyFaults(w, r, requestHash(r.URL.Path, nil)); !ok {
+		return
+	}
 	m := r.PathValue("model")
 	if !s.models[m] {
 		s.writeError(w, http.StatusNotFound, errModelNotFound, fmt.Sprintf("The model `%s` does not exist or you do not have access to it.", m))

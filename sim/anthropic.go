@@ -64,6 +64,11 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		return
 	}
+	h := requestHash(r.URL.Path, body)
+	p, ok := s.applyFaults(w, r, h)
+	if !ok {
+		return
+	}
 	var req antRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		s.writeError(w, http.StatusBadRequest, errInvalidRequest, "invalid JSON body: "+err.Error())
@@ -87,7 +92,6 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	h := requestHash(r.URL.Path, body)
 	rep := s.anthropicReply(s.seeds.content(h), req)
 	usage := antUsage{InputTokens: anthropicInputTokens(req), OutputTokens: rep.completionTokens(), ServiceTier: "standard"}
 	stop := "end_turn"
@@ -100,7 +104,10 @@ func (s *Server) handleAnthropicMessages(w http.ResponseWriter, r *http.Request)
 	id := newID("msg_", 24)
 	w.Header().Set("Request-Id", newID("req_", 24))
 	if req.Stream {
-		s.streamAnthropic(w, r, req, rep, usage, id, stop)
+		s.streamAnthropic(w, r, p, req, rep, usage, id, stop)
+		return
+	}
+	if !p.whole(usage.OutputTokens) {
 		return
 	}
 	s.writeJSON(w, http.StatusOK, antMessageResponse{
@@ -201,7 +208,10 @@ func anthropicBlock(rep reply, streamStart bool) map[string]any {
 	return map[string]any{"type": "text", "text": text}
 }
 
-func (s *Server) streamAnthropic(w http.ResponseWriter, r *http.Request, req antRequest, rep reply, usage antUsage, id, stop string) {
+func (s *Server) streamAnthropic(w http.ResponseWriter, r *http.Request, p *pace, req antRequest, rep reply, usage antUsage, id, stop string) {
+	if !p.first() {
+		return
+	}
 	sse := startSSE(w)
 	send := func(event string, v any) bool {
 		data, err := json.Marshal(v)
@@ -222,19 +232,22 @@ func (s *Server) streamAnthropic(w http.ResponseWriter, r *http.Request, req ant
 		return
 	}
 	if rep.toolName != "" {
-		for _, partial := range []string{"", rep.toolArgs} {
+		for i, partial := range []string{"", rep.toolArgs} {
 			delta := map[string]any{"type": "content_block_delta", "index": 0,
 				"delta": map[string]string{"type": "input_json_delta", "partial_json": partial}}
-			if !send("content_block_delta", delta) {
+			if (i > 0 && !p.next(i)) || !send("content_block_delta", delta) {
 				return
 			}
 		}
 	} else {
-		for _, p := range rep.pieces {
-			delta := map[string]any{"type": "content_block_delta", "index": 0,
-				"delta": map[string]string{"type": "text_delta", "text": p}}
-			if !send("content_block_delta", delta) {
+		for i, piece := range rep.pieces {
+			if i > 0 && !p.next(i) {
 				return // client went away: stop generating
+			}
+			delta := map[string]any{"type": "content_block_delta", "index": 0,
+				"delta": map[string]string{"type": "text_delta", "text": piece}}
+			if !send("content_block_delta", delta) {
+				return
 			}
 		}
 	}

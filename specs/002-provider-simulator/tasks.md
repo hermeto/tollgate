@@ -54,13 +54,13 @@ implementation inside each story.
 
 ## Phase 6: User Story 3 — Latency model (P1)
 
-- [ ] T021 [P] [US3] Tests for distributions (fixed, normal, lognormal, clamps) and for stream timing tolerances (US3 AS1) in sim/latency_test.go
-- [ ] T022 [US3] Implement sim/latency.go and apply TTFT and inter-token delays in both flavours, cancelling timers on client disconnect
+- [x] T021 [P] [US3] Tests for distributions (fixed, normal, lognormal, clamps) and for stream timing tolerances (US3 AS1) in sim/latency_test.go
+- [x] T022 [US3] Implement sim/latency.go and apply TTFT and inter-token delays in both flavours, cancelling timers on client disconnect
 
 ## Phase 7: User Story 4 — Fault injection (P1)
 
-- [ ] T023 [P] [US4] Tests for each fault (status rates with retry-after, reset, pre-first-token timeout, mid-stream stall, outage window, live set/merge/reset) in sim/faults_test.go
-- [ ] T024 [US4] Implement sim/faults.go (atomic state, outage resolution, decision per request) and admin endpoints `/_sim/faults` per contracts/admin-api.md
+- [x] T023 [P] [US4] Tests for each fault (status rates with retry-after, reset, pre-first-token timeout, mid-stream stall, outage window, live set/merge/reset) in sim/faults_test.go
+- [x] T024 [US4] Implement sim/faults.go (atomic state, outage resolution, decision per request) and admin endpoints `/_sim/faults` per contracts/admin-api.md
 
 ## Phase 8: User Story 6 — Request log (P2)
 

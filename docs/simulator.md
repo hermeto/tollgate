@@ -57,6 +57,40 @@ as 0 and `service_tier: "standard"`. Errors use `{"type":"error","error":{"type"
 `request_too_large` 413). The `anthropic-version` header is accepted and not enforced; every response
 carries `request-id`. Shapes are checked against [`testdata/wire/anthropic/`](../testdata/wire/README.md).
 
+## Latency model
+
+`latency.ttft` and `latency.inter_token` are sampled per response from the per-request random
+stream. Nothing — not even response headers — is sent before the first token is ready, so time to
+first token equals time to first byte, which is what the gateway's fallback logic measures (feature
+009). Content chunks are then separated by inter-token delays. Non-streaming responses wait for the
+whole generation (first token plus one delay per remaining token). Embeddings wait for one TTFT
+sample. Every wait ends as soon as the client disconnects.
+
+## Fault injection
+
+Faults come from the `faults` block of the configuration and can be changed live:
+
+```bash
+curl -X PUT   localhost:9001/_sim/faults -d '{"error_rates":{"429":0.2,"500":0.05},"retry_after_seconds":2}'
+curl -X PATCH localhost:9001/_sim/faults -d '{"outage":{"start_after":"10s","duration":"30s"}}'
+curl          localhost:9001/_sim/faults        # active config, outage with absolute start and end
+curl -X DELETE localhost:9001/_sim/faults       # back to the start-up config
+```
+
+| Fault | Effect |
+| --- | --- |
+| `error_rates` | per-status probability (429, 500, 503; 529 on the Anthropic flavour) of a provider-shaped error; `retry_after_seconds` adds `retry-after` to 429, 503 and 529 |
+| `reset_rate` | probability of closing the connection with a TCP reset and no response (logged with status 0) |
+| `timeout_before_first_token` | with probability `rate`, hold the response `duration` before any byte |
+| `stall_mid_stream` | with probability `rate`, pause `duration` after `after_tokens` content tokens (streams only) |
+| `outage` | every provider request fails with `status` (default 503) from `start_after` for `duration` |
+
+Each request draws its outcome from its own deterministic random stream in a fixed order (outage,
+then one draw shared by error rates and resets, then timeout, then stall), so the same seed and
+request sequence always produce the same faults. `error_rates` plus `reset_rate` must not exceed 1.
+PUT replaces the config, PATCH applies an RFC 7396 merge patch; a new relative outage window starts
+when it is set. Admin endpoints are never affected by faults.
+
 ## Admin API
 
 | Method | Path | Result |
@@ -64,6 +98,7 @@ carries `request-id`. Shapes are checked against [`testdata/wire/anthropic/`](..
 | GET | `/_sim/healthz` | 200 with flavor and models |
 | GET | `/_sim/requests` | `{"requests":[…]}`: the last `request_log.size` provider requests, oldest first, with method, path, headers, body (capped at 64 KiB, `body_truncated` when cut) and status |
 | DELETE | `/_sim/requests` | 204, clears the log |
+| GET, PUT, PATCH, DELETE | `/_sim/faults` | read, replace, merge or reset the fault config (see above) |
 
 The request log lets end-to-end tests assert what the gateway actually sent upstream, for example that
 PII was redacted or that client headers were stripped. It keeps headers verbatim, so it must only ever

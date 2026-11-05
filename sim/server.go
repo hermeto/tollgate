@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"io"
@@ -34,6 +35,7 @@ type Server struct {
 	models map[string]bool
 	mux    *http.ServeMux
 	reqlog *requestLog
+	faults *faults
 }
 
 // New validates the configuration and builds a simulator.
@@ -53,6 +55,7 @@ func New(cfg Config, opts Options) (*Server, error) {
 		models: make(map[string]bool, len(cfg.Models)),
 		mux:    http.NewServeMux(),
 		reqlog: newRequestLog(cfg.RequestLog.Size),
+		faults: newFaults(cfg.Faults, time.Now()),
 	}
 	for _, m := range cfg.Models {
 		s.models[m] = true
@@ -60,6 +63,10 @@ func New(cfg Config, opts Options) (*Server, error) {
 	s.mux.HandleFunc("GET /_sim/healthz", s.handleHealth)
 	s.mux.HandleFunc("GET /_sim/requests", s.handleRequestsList)
 	s.mux.HandleFunc("DELETE /_sim/requests", s.handleRequestsClear)
+	s.mux.HandleFunc("GET /_sim/faults", s.handleFaultsGet)
+	s.mux.HandleFunc("PUT /_sim/faults", s.handleFaultsPut)
+	s.mux.HandleFunc("PATCH /_sim/faults", s.handleFaultsPatch)
+	s.mux.HandleFunc("DELETE /_sim/faults", s.handleFaultsDelete)
 	switch cfg.Flavor {
 	case FlavorOpenAI:
 		s.registerOpenAI()
@@ -178,7 +185,14 @@ func (s *Server) readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool)
 // statusRecorder captures the status code for request logging and keeps Flush/Hijack reachable.
 type statusRecorder struct {
 	http.ResponseWriter
-	status int
+	status   int
+	hijacked bool
+}
+
+// Hijack records that the connection was taken over (an injected reset) and delegates.
+func (r *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	r.hijacked = true
+	return http.NewResponseController(r.ResponseWriter).Hijack()
 }
 
 func (r *statusRecorder) WriteHeader(code int) {
