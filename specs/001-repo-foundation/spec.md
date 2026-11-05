@@ -10,6 +10,16 @@
 issue and PR templates, repository settings as code, automated quality gates aggregated into one
 required check, security scanning, automated signed releases and visible repository health."
 
+## Clarifications
+
+### Session 2026-11-04
+
+- Q: Which jobs does `ci-gate` aggregate, given that CodeQL and Scorecard run as separate workflows? → A: Only the jobs of the main CI workflow: lint, test, security scan (Trivy filesystem), PR title, sign-off and dependency review. CodeQL and Scorecard report through code scanning and are not part of `ci-gate`. (decided by agent: `needs:` only works inside one workflow, and one required status keeps the ruleset simple.)
+- Q: How do PR-only jobs behave on pushes to the default branch? → A: PR title, sign-off and dependency review are skipped by condition on push events, and `ci-gate` accepts `skipped` only for those three jobs and only on non-PR events. (decided by agent: avoids a false failure on `main` while keeping skip-as-failure on PRs.)
+- Q: How does a Linux contributor without Homebrew get the tools? → A: Setup requires only git, Go and uv. Go tools are pinned in a separate tools module and run with `go tool`; the other linters are pinned pre-commit hooks that pre-commit installs itself. Homebrew is an optional shortcut on macOS. (decided by agent: one pinned path for macOS, Linux and CI; no global installs.)
+- Q: What response times does the security policy promise? → A: Acknowledge within 3 business days, triage within 7 calendar days, fix or mitigation for HIGH/CRITICAL within 90 days, with coordinated disclosure at 90 days. (decided by agent: common open-source defaults that a single maintainer can keep.)
+- Q: Which versions receive security fixes? → A: Only the latest released minor version (pre-1.0: the latest 0.x release) and `main`. (decided by agent: a single-maintainer project cannot backport.)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Contributor can set up, verify and propose a change (Priority: P1)
@@ -79,7 +89,8 @@ classes (gateway, policy bypass, PII leakage, audit tampering), out-of-scope ite
 
 1. **Given** a reporter opens the security policy, **When** they read it, **Then** they find the
    private reporting link, in-scope and out-of-scope classes, supported versions and response targets
-   (acknowledgement, triage, fix or mitigation).
+   (acknowledgement within 3 business days, triage within 7 days, fix or mitigation for HIGH/CRITICAL
+  within 90 days) and that only the latest minor release and `main` receive fixes.
 
 ---
 
@@ -124,8 +135,8 @@ definition has a weekly schedule and a default-branch push trigger.
 
 - A fork PR has no access to secrets: every required job must pass without them; jobs that need
   write tokens (labels sync, Scorecard publishing, releases) never run on PRs.
-- A contributor on Linux has no Homebrew: the setup command uses Go and uv installers or prints exact
-  install instructions instead of failing obscurely.
+- A contributor on Linux has no Homebrew: the setup command installs every tool through Go and uv and
+  prints exact install instructions for Go or uv if either is missing.
 - A required job is skipped because an upstream job failed: `ci-gate` treats `skipped` and
   `cancelled` as failure.
 - Merge commits created by the platform (e.g. update-branch) lack sign-off: the sign-off check only
@@ -156,7 +167,8 @@ definition has a weekly schedule and a default-branch push trigger.
   Markdown linting, editorconfig checking, Go tests with the race detector, PR title validation,
   sign-off validation and dependency review.
 - **FR-006**: CI MUST publish one aggregated status named `ci-gate` that succeeds only if every required
-  job succeeded, and fails when any required job failed, was cancelled or was skipped.
+  job succeeded, and fails when any required job failed, was cancelled or was skipped. The only
+  accepted skips are the PR-only jobs (PR title, sign-off, dependency review) on non-PR events.
 - **FR-007**: The sign-off check MUST verify a `Signed-off-by` trailer on every non-merge commit in the
   PR without relying on a third-party app.
 - **FR-008**: Security scanning MUST include CodeQL (Go, Python, Actions), OpenSSF Scorecard (weekly and
@@ -167,16 +179,18 @@ definition has a weekly schedule and a default-branch push trigger.
   darwin/linux × amd64/arm64 binaries and a distroless multi-arch image on GHCR, with SBOMs, keyless
   signatures and artifact attestations; release jobs MUST run only on tags (the release proposal runs
   on the default branch).
-- **FR-011**: Developer experience MUST include a Makefile with `help`, `dev-setup`, `fmt`, `lint`,
+- **FR-011**: Setup MUST require only git, Go and uv (plus Docker for later features); every lint and
+  test tool MUST be pinned and installed by the repository's own tooling, without Homebrew.
+- **FR-012**: Developer experience MUST include a Makefile with `help`, `dev-setup`, `fmt`, `lint`,
   `test` and `bench-micro` targets, a pre-commit configuration, a Go linter configuration, a Markdown
   linter configuration (line length rule off, duplicate headings allowed only between siblings) and a
   YAML linter configuration.
-- **FR-012**: Every workflow MUST declare read-only top-level permissions, per-job least-privilege
+- **FR-013**: Every workflow MUST declare read-only top-level permissions, per-job least-privilege
   permissions, actions pinned by full commit SHA with a version comment, a concurrency group and job
   timeouts.
-- **FR-013**: The Go module `github.com/hermeto/tollgate` MUST exist with a `tollgate` binary that
+- **FR-014**: The Go module `github.com/hermeto/tollgate` MUST exist with a `tollgate` binary that
   prints its version (placeholder replaced by later features).
-- **FR-014**: Every governance, template and configuration file introduced by this feature MUST be
+- **FR-015**: Every governance, template and configuration file introduced by this feature MUST be
   linked from the README or the contribution guide.
 
 ### Key Entities
@@ -199,7 +213,7 @@ definition has a weekly schedule and a default-branch push trigger.
   (verified for failure and skip).
 - **SC-004**: The OpenSSF Scorecard workflow runs on schedule and on default-branch pushes; its first
   run completes successfully after the repository is published.
-- **SC-005**: Every file listed in FR-001 to FR-004 and FR-011 is reachable from the README or the
+- **SC-005**: Every file listed in FR-001 to FR-004 and FR-012 is reachable from the README or the
   contribution guide in at most one click.
 
 ## Assumptions
