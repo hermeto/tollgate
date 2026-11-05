@@ -10,6 +10,16 @@
 providers. Every test, demo and benchmark needs upstreams that speak the real wire protocols, report
 realistic token usage, and can be told to be slow, fail, rate-limit or go down — deterministically."
 
+## Clarifications
+
+### Session 2026-11-04
+
+- Q: How do the simulators treat credentials? → A: They require the provider's auth header (`Authorization: Bearer …` for OpenAI, `x-api-key` for Anthropic) to be present and accept any value; a missing header returns the provider's 401 error. (decided by agent: SDKs always send one, and tests can prove the gateway injects provider credentials without the simulator ever holding real keys.)
+- Q: How are tool calls simulated? → A: When the request forces a tool (OpenAI `tool_choice` naming a function or `required`; Anthropic `tool_choice` of type `tool` or `any`), the response is one tool call to the first eligible tool with arguments `{}` and finish reason `tool_calls` / stop reason `tool_use`; otherwise the response is text. (decided by agent: enough for translation tests in 004 without modelling argument generation.)
+- Q: Which address does the simulator bind to by default? → A: `127.0.0.1`; `--host` overrides it (the Compose profile uses `0.0.0.0` on a private network). (decided by agent: the admin API is unauthenticated, so the safe default is loopback.)
+- Q: How is latency kept deterministic under concurrency? → A: Each request's random stream is seeded from the global seed, a hash of the request body and the occurrence count of that body, so distinct requests get the same samples regardless of interleaving. (decided by agent: arrival-order seeding breaks determinism as soon as requests overlap.)
+- Q: Which reference tokenizer defines the "known error"? → A: `o200k_base` via tiktoken (pinned) on a committed corpus; the same approximation is used for the Anthropic flavour, whose tokenizer is not public, and the documentation says so. (decided by agent: o200k_base is the current OpenAI family encoding and freely available offline.)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - OpenAI-compatible simulator (Priority: P1)
@@ -212,6 +222,13 @@ it, from the deterministic generator.
 - **FR-014**: Health endpoint `/_sim/healthz` MUST return 200 for readiness probes.
 - **FR-015**: The simulator MUST never contact a real provider; it has no outbound calls except the
   optional local embeddings forward URL.
+- **FR-016**: Requests without the provider's auth header MUST receive the provider's 401 error; any
+  header value is accepted.
+- **FR-017**: When a request forces a tool call, the response MUST contain one tool call to the first
+  eligible tool with arguments `{}` and the provider's tool finish/stop reason.
+- **FR-018**: The simulator MUST bind to `127.0.0.1` unless `--host` is given.
+- **FR-019**: Per-request randomness MUST be seeded from the global seed, the request-body hash and the
+  occurrence count of that body.
 
 ### Key Entities
 
@@ -238,13 +255,13 @@ it, from the deterministic generator.
   (excluding ids and timestamps) and identical sampled delays.
 - **SC-005**: Each fault type is observable within one request after being set live and disappears
   within one request after being cleared.
-- **SC-006**: Token-count mean absolute error against a reference tokenizer is documented and ≤ 15%.
+- **SC-006**: Token-count mean absolute error against the `o200k_base` reference tokenizer on the
+  committed corpus is documented and ≤ 15%.
 
 ## Assumptions
 
 - Model quality and real tokenizer parity are out of scope; text is synthetic filler.
-- Only one choice (`n = 1`) is supported on OpenAI chat completions; tool calls are echoed only as
-  far as needed by 004 (the simulator returns a tool call when the request forces one).
-- The admin endpoints have no authentication; the simulator binds to localhost by default and is a
-  test double, never a production component.
+- Only one choice (`n = 1`) is supported on OpenAI chat completions.
+- The admin endpoints have no authentication; the simulator is a test double, never a production
+  component.
 - Python, Node.js and Go toolchains are available in CI for the compatibility job.
