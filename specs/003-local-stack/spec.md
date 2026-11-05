@@ -179,6 +179,12 @@ Readiness reflects the health of each configured dependency according to its dec
   client.
 - **FR-018**: When the upstream closes a stream early, the gateway MUST send a final OpenAI-format error
   data event (`upstream_stream_error`) and close the stream without `[DONE]`.
+- **FR-019**: Access logs, spans and metrics MUST NOT contain request or response bodies, prompt or
+  completion text, or credentials; they carry ids, sizes, statuses and timings only (constitution III).
+- **FR-020**: An unreachable upstream MUST produce 502 (`upstream_unavailable`) and a missing first
+  upstream byte after `timeouts.response_header` MUST produce 504 (`upstream_timeout`), both in the OpenAI
+  error format.
+- **FR-021**: In the local profile every published port MUST bind to `127.0.0.1` only.
 
 ### Key Entities
 
@@ -200,12 +206,16 @@ Readiness reflects the health of each configured dependency according to its dec
 - **SC-003**: Passthrough gateway overhead (time spent in the gateway, excluding upstream wait) is
   ≤ 1 ms at p99 against the simulator on the CI runner.
 - **SC-004**: After `make down`, zero project containers, networks or volumes remain.
-- **SC-005**: With the telemetry collector stopped, request success rate and latency are unchanged.
+- **SC-005**: With the telemetry collector stopped, 100% of requests still succeed and gateway overhead
+  p99 stays within its SC-003 budget.
 
 ## Assumptions
 
 - Only the OpenAI chat completions endpoint is proxied in this feature; Anthropic, embeddings, models and
-  translation arrive in 004; authentication and policies in 005.
+  translation arrive in 004; authentication and policies in 005. The gateway does not parse request bodies
+  yet, so invalid JSON is answered by the upstream.
+- The operations listener is unauthenticated; it exposes no request content and is published only on
+  loopback locally (network policies arrive with the Helm chart in 015).
 - Redis-compatible store and PostgreSQL are present in the stack and checked for readiness but not yet
   used by the request path (006, 007).
 - Docker (Desktop or Colima) with Compose v2 is available locally and on CI runners.
