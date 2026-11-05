@@ -6,16 +6,23 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 001 repo-foundation — step 12 (CI on the PR) |
-| Spec Kit phase | converge clean |
-| Last commit | `docs(agent): record remote setup` on `001-repo-foundation` |
-| Next step | watch PR 001 checks; continue 002 at `/speckit-checklist` |
+| Current feature | 002 provider-simulator — slice 1 of 7 (`002-provider-simulator`) |
+| Spec Kit phase | implement |
+| Last commit | `feat(simulator): add simulator configuration and JSON Schema` on `002-provider-simulator` |
+| Next step | CI on PR #5; then slice 2 (`002-provider-simulator-iter1`) from the local backup branch `tmp-002-impl` |
 
 ## Features (merge order)
 
 | # | Branch | Local status | PR | PR body draft |
 | --- | --- | --- | --- | --- |
-| 001 | `001-repo-foundation` | done (lint, test, DoD local parts) | not opened (B1) | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
+| 001 | `001-repo-foundation` | done; CI green | [#4](https://github.com/hermeto/tollgate/pull/4) ready | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
+| 002 (1/7) | `002-provider-simulator` | CLI, schema, config | [#5](https://github.com/hermeto/tollgate/pull/5) | [pr-bodies/002-provider-simulator.md](pr-bodies/002-provider-simulator.md) |
+| 002 (2/7) | `002-provider-simulator-iter1` | server skeleton (code on `tmp-002-impl`) | — | — |
+| 002 (3/7) | `002-provider-simulator-iter2` | tokens, generator (code on `tmp-002-impl`) | — | — |
+| 002 (4/7) | `002-provider-simulator-iter3` | pending: OpenAI flavour | — | — |
+| 002 (5/7) | `002-provider-simulator-iter4` | pending: Anthropic, request log | — | — |
+| 002 (6/7) | `002-provider-simulator-iter5` | pending: latency, faults | — | — |
+| 002 (7/7) | `002-provider-simulator-iter6` | pending: SDK compat, polish | — | — |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
@@ -84,6 +91,11 @@ branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001),
   minimal-description rule; recorded in `CLAUDE.md`.
 - D-B6: The Spec Kit skills became visible to the agent's Skill tool partway through feature 001; the
   agent keeps following the same `SKILL.md` instructions directly.
+- D-B7: Features larger than the 800-line PR rule are split into slices by user story. Slices are
+  chained linearly (`NNN-name` ← `NNN-name-iter1` ← `NNN-name-iter2` …), each PR based on the previous
+  slice, and feature N+1 branches from the last slice of N. This keeps one linear, bottom-up merge order.
+- D-B8: This file is authoritative on the top branch of the stack. Lower branches keep the copy from
+  their last change, so ready PRs are not re-pushed (and re-run in CI) just to refresh progress notes.
 
 ## Decision log (features)
 
@@ -94,3 +106,5 @@ Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) a
 ## Evidence log
 
 - 001 SC-001: fresh clone `make dev-setup && make lint test` → exit 0 in 7.4 s (warm Go and pre-commit caches, M-series Mac).
+- 002 tokens: o200k_base mean absolute error 7.4% (holdout 5.8%), bias +2.2%; 4.2 µs per 4 KB.
+- 001 SC-003/SC-006: PR #4 first run — every check green; `ci-gate` reported ~2.5 min after the push (lint 1m56s is the longest job).

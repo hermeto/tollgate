@@ -29,6 +29,7 @@ NFR-11 (Apache-2.0) from `docs/product/spec.md`.
 
 ## How it was verified
 
+- This PR's own checks: `ci-gate`, lint, test, security, dco, pr-title, dependency-review and CodeQL (Go, Python, Actions) green on the first run; `ci-gate` reported about 2.5 minutes after the push (SC-006: ≤ 15 min).
 - `make dev-setup && make lint test` on a fresh clone: exit 0, 7.4 s with warm caches.
 - `actionlint` and `pre-commit run --all-files`: clean.
 - `go test ./internal/repotest/...`: ci-gate rule (failure, cancel, skip on PR, PR-only skip on push, empty input), DCO (signed, unsigned, body-only trailer, merge commit), SHA pinning, permissions, concurrency and timeouts on every workflow.

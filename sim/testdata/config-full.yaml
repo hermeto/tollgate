@@ -1,0 +1,10 @@
+# Simulator config used by TestLoadConfigFileAndOverrides.
+flavor: openai
+port: 9100
+seed: 7
+latency:
+  ttft: {kind: fixed, value: 200}
+faults:
+  error_rates: {429: 0.25, 500: 0.25}
+  retry_after_seconds: 3
+  outage: {start_after: 10s, duration: 1m}

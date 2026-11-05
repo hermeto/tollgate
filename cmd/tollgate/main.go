@@ -2,40 +2,43 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/hermeto/tollgate/internal/version"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
-	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	code := run(ctx, os.Args[1:], os.Stdout, os.Stderr)
+	stop()
+	os.Exit(code)
 }
 
-// run executes the CLI and returns the process exit code.
-func run(args []string, stdout, stderr io.Writer) int {
-	if len(args) == 0 {
-		usage(stderr)
-		return 2
-	}
-	switch args[0] {
-	case "version", "--version", "-v":
-		_, _ = fmt.Fprintln(stdout, version.String())
-		return 0
-	case "help", "--help", "-h":
-		usage(stdout)
-		return 0
-	default:
-		_, _ = fmt.Fprintf(stderr, "tollgate: unknown command %q\n\n", args[0])
-		usage(stderr)
-		return 2
-	}
-}
+// usageError marks errors caused by invalid command-line usage (exit code 2).
+type usageError struct{ err error }
 
-func usage(w io.Writer) {
-	_, _ = fmt.Fprint(w, "Usage: tollgate <command>\n\n"+
-		"Commands:\n"+
-		"  version   Print version information\n"+
-		"  help      Show this help\n")
+func (e usageError) Error() string { return e.err.Error() }
+func (e usageError) Unwrap() error { return e.err }
+
+// run executes the CLI and returns the process exit code: 0 success, 1 runtime error, 2 usage error.
+func run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	root := newRootCmd()
+	root.SetArgs(args)
+	root.SetOut(stdout)
+	root.SetErr(stderr)
+	err := root.ExecuteContext(ctx)
+	if err == nil {
+		return 0
+	}
+	_, _ = fmt.Fprintf(stderr, "tollgate: %v\n", err)
+	var ue usageError
+	if errors.As(err, &ue) {
+		_, _ = fmt.Fprintf(stderr, "Run 'tollgate --help' for usage.\n")
+		return 2
+	}
+	return 1
 }

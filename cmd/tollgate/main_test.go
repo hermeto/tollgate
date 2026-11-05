@@ -6,35 +6,48 @@ import (
 	"testing"
 )
 
+func runCLI(t *testing.T, args ...string) (stdout, stderr string, code int) {
+	t.Helper()
+	var out, errOut bytes.Buffer
+	code = run(t.Context(), args, &out, &errOut)
+	return out.String(), errOut.String(), code
+}
+
 func TestRunVersion(t *testing.T) {
 	for _, arg := range []string{"version", "--version", "-v"} {
-		var out, errOut bytes.Buffer
-		if code := run([]string{arg}, &out, &errOut); code != 0 {
+		out, _, code := runCLI(t, arg)
+		if code != 0 {
 			t.Fatalf("run(%q) exit = %d, want 0", arg, code)
 		}
-		want := "tollgate dev (commit none, built unknown)\n"
-		if out.String() != want {
-			t.Errorf("run(%q) stdout = %q, want %q", arg, out.String(), want)
+		if want := "tollgate dev (commit none, built unknown)\n"; out != want {
+			t.Errorf("run(%q) stdout = %q, want %q", arg, out, want)
 		}
 	}
 }
 
 func TestRunUnknownCommand(t *testing.T) {
-	var out, errOut bytes.Buffer
-	if code := run([]string{"bogus"}, &out, &errOut); code != 2 {
+	_, errOut, code := runCLI(t, "bogus")
+	if code != 2 {
 		t.Fatalf("exit = %d, want 2", code)
 	}
-	if !strings.Contains(errOut.String(), `unknown command "bogus"`) {
-		t.Errorf("stderr = %q", errOut.String())
+	if !strings.Contains(errOut, `unknown command "bogus"`) {
+		t.Errorf("stderr = %q", errOut)
 	}
 }
 
-func TestRunNoArgs(t *testing.T) {
-	var out, errOut bytes.Buffer
-	if code := run(nil, &out, &errOut); code != 2 {
+func TestRunNoArgsPrintsUsage(t *testing.T) {
+	_, errOut, code := runCLI(t)
+	if code != 2 {
 		t.Fatalf("exit = %d, want 2", code)
 	}
-	if !strings.Contains(errOut.String(), "Usage: tollgate") {
-		t.Errorf("stderr = %q", errOut.String())
+	if !strings.Contains(errOut, "Usage:") || !strings.Contains(errOut, "tollgate [command]") {
+		t.Errorf("stderr = %q", errOut)
+	}
+}
+
+func TestRunBadFlagIsUsageError(t *testing.T) {
+	_, _, code := runCLI(t, "version", "--nope")
+	if code != 2 {
+		t.Fatalf("exit = %d, want 2", code)
 	}
 }
