@@ -16,7 +16,7 @@ required check, security scanning, automated signed releases and visible reposit
 
 - Q: Which jobs does `ci-gate` aggregate, given that CodeQL and Scorecard run as separate workflows? → A: Only the jobs of the main CI workflow: lint, test, security scan (Trivy filesystem), PR title, sign-off and dependency review. CodeQL and Scorecard report through code scanning and are not part of `ci-gate`. (decided by agent: `needs:` only works inside one workflow, and one required status keeps the ruleset simple.)
 - Q: How do PR-only jobs behave on pushes to the default branch? → A: PR title, sign-off and dependency review are skipped by condition on push events, and `ci-gate` accepts `skipped` only for those three jobs and only on non-PR events. (decided by agent: avoids a false failure on `main` while keeping skip-as-failure on PRs.)
-- Q: How does a Linux contributor without Homebrew get the tools? → A: Setup requires only git, Go and uv. Go tools are pinned in a separate tools module and run with `go tool`; the other linters are pinned pre-commit hooks that pre-commit installs itself. Homebrew is an optional shortcut on macOS. (decided by agent: one pinned path for macOS, Linux and CI; no global installs.)
+- Q: How does a Linux contributor without Homebrew get the tools? → A: Setup requires only git, Go and uv (jq added during convergence: the gate script needs it). Go tools are pinned in a separate tools module and run with `go tool`; the other linters are pinned pre-commit hooks that pre-commit installs itself. Homebrew is an optional shortcut on macOS. (decided by agent: one pinned path for macOS, Linux and CI; no global installs.)
 - Q: What response times does the security policy promise? → A: Acknowledge within 3 business days, triage within 7 calendar days, fix or mitigation for HIGH/CRITICAL within 90 days, with coordinated disclosure at 90 days. (decided by agent: common open-source defaults that a single maintainer can keep.)
 - Q: Which versions receive security fixes? → A: Only the latest released minor version (pre-1.0: the latest 0.x release) and `main`. (decided by agent: a single-maintainer project cannot backport.)
 
@@ -181,7 +181,7 @@ definition has a weekly schedule and a default-branch push trigger.
   darwin/linux × amd64/arm64 binaries and a distroless multi-arch image on GHCR, with SBOMs, keyless
   signatures and artifact attestations; release jobs MUST run only on tags (the release proposal runs
   on the default branch).
-- **FR-011**: Setup MUST require only git, Go and uv (plus Docker for later features); every lint and
+- **FR-011**: Setup MUST require only git, Go, uv and jq (plus Docker for later features); every lint and
   test tool MUST be pinned and installed by the repository's own tooling, without Homebrew.
 - **FR-012**: Developer experience MUST include a Makefile with `help`, `dev-setup`, `fmt`, `lint`,
   `test` and `bench-micro` targets, a pre-commit configuration, a Go linter configuration, a Markdown

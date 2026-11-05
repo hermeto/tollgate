@@ -36,6 +36,7 @@ No target calls a model provider or any paid API. You never need provider keys t
 | [`.pre-commit-config.yaml`](.pre-commit-config.yaml) | Pinned hooks: actionlint, shellcheck, yamllint, markdownlint, editorconfig |
 | [`.golangci.yml`](.golangci.yml) | Go linters and formatters |
 | [`.markdownlint-cli2.yaml`](.markdownlint-cli2.yaml), [`.yamllint`](.yamllint), [`.editorconfig`](.editorconfig) | Docs and YAML style |
+| [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE), [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md) | Issue forms (bug, feature, docs, policy proposal) and the PR template |
 | [`.github/workflows/`](.github/workflows) | CI (`ci-gate`), CodeQL, Scorecard, release-please, release, label sync |
 | [`.github/rulesets/main.json`](.github/rulesets/main.json) | Protection rules for `main` |
 | [`.github/labels.yml`](.github/labels.yml) | Label set, synced on merge |

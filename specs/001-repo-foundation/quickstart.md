@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-git ≥ 2.40, Go 1.27.3 (or any Go ≥ 1.21 that can download the toolchain named in go.mod), uv.
-On macOS `brew install go uv` is the shortest path; on Linux use the official Go tarball and
+git ≥ 2.40, Go 1.27.3 (or any Go ≥ 1.21 that can download the toolchain named in go.mod), uv, jq.
+On macOS `brew install go uv jq` is the shortest path; on Linux use the official Go tarball and
 `curl -LsSf https://astral.sh/uv/install.sh | sh`.
 
 ## Validate locally

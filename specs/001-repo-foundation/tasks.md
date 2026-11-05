@@ -86,7 +86,7 @@ scripts are tested first.
 ## Phase 8: Polish & Cross-Cutting Concerns
 
 - [x] T030 Run actionlint, `make lint test`, `pre-commit run --all-files`; fix findings
-- [ ] T031 Update docs/agent/PROGRESS.md
+- [x] T031 Update docs/agent/PROGRESS.md
 
 ## Dependencies & Execution Order
 
@@ -109,3 +109,9 @@ T020 rulesets/labels   T021 dependabot   T022 ADRs
 MVP = Phases 1–4 (local loop + `ci-gate`). Then US3, US4, US5, polish. One PR for the feature: the
 non-generated change set is mostly documentation and configuration, under the 800-line rule once
 generated/lock files are excluded.
+
+## Phase 9: Convergence
+
+- [x] T032 [contradicts] Amend FR-011, quickstart.md and contracts/make-targets.md to list jq as a setup prerequisite; scripts/ci-gate.sh and its tests require it (Spec §FR-011)
+- [x] T033 [partial] Link the issue forms (.github/ISSUE_TEMPLATE/) from CONTRIBUTING.md (Spec §FR-015, §SC-005)
+- [x] T034 [partial] Measure `make dev-setup && make lint test` on a fresh clone and record the timing in docs/agent/PROGRESS.md (Spec §SC-001; T013 had no recorded evidence)

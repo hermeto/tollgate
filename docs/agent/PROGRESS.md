@@ -6,14 +6,20 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | bootstrap (playbook §4) |
-| Spec Kit phase | constitution ratified (1.0.0) |
-| Last commit | bootstrap commit on `main` |
-| Next step | §4.4 create GitHub repository, then feature 001 |
+| Current feature | 001 repo-foundation — complete locally (steps 1–11); step 12 blocked by B1 |
+| Spec Kit phase | converge clean |
+| Last commit | `docs(agent): record 001 progress` on `001-repo-foundation` |
+| Next step | feature 002 provider-simulator from `001-repo-foundation` |
 
-## Open PRs (merge order)
+## Features (merge order)
 
-None yet.
+| # | Branch | Local status | PR | PR body draft |
+| --- | --- | --- | --- | --- |
+| 001 | `001-repo-foundation` | done (lint, test, DoD local parts) | not opened (B1) | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
+
+PR metadata to apply when opening: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
+branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
+§6, assignee `hermeto`.
 
 ## Blockers
 
@@ -25,6 +31,9 @@ None yet.
   permission file; the classifier refuses self-granted permissions. The intended content is in
   [`claude-settings.json`](claude-settings.json); the maintainer copies it to `.claude/settings.json`.
   Becomes a `needs-human` issue once the repository exists.
+- **B3 — Code of Conduct contact.** Publishing a private contact address is the maintainer's call;
+  CODE_OF_CONDUCT.md points to MAINTAINERS.md, which says the address is pending. Becomes a
+  `needs-human` issue once the repository exists.
 
 ## Remote steps queued (blocked by B1)
 
@@ -75,3 +84,15 @@ and open the stacked PRs in order; watch CI and fix until green.
   commit messages follow playbook §5.2.
 - D-B5: PR descriptions follow playbook §5.3 (project-specific) instead of the maintainer's global
   minimal-description rule; recorded in `CLAUDE.md`.
+- D-B6: The Spec Kit skills became visible to the agent's Skill tool partway through feature 001; the
+  agent keeps following the same `SKILL.md` instructions directly.
+
+## Decision log (features)
+
+Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) and in the PR body drafts.
+
+- 001: see [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) "Decisions for the reviewer".
+
+## Evidence log
+
+- 001 SC-001: fresh clone `make dev-setup && make lint test` → exit 0 in 7.4 s (warm Go and pre-commit caches, M-series Mac).
