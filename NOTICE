@@ -2,3 +2,7 @@ Tollgate
 Copyright 2026 The Tollgate Authors
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+testdata/wire/anthropic/message_stream.sse and message_tool_use_stream.sse are copied from the
+Anthropic Python SDK test suite (https://github.com/anthropics/anthropic-sdk-python, v2.5.0),
+Copyright Anthropic, PBC, licensed under the Apache License, Version 2.0.

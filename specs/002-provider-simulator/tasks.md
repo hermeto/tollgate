@@ -48,9 +48,9 @@ implementation inside each story.
 
 ## Phase 5: User Story 2 — Anthropic flavour (P1)
 
-- [ ] T018 [P] [US2] Copy fixtures from anthropic-sdk-python v2.5.0 (basic, tool use) and add non-streaming and error fixtures in testdata/wire/anthropic/ with sources
-- [ ] T019 [P] [US2] Fixture structure, event-order and replay-determinism tests in sim/anthropic_test.go
-- [ ] T020 [US2] Implement `/v1/messages` non-streaming and streaming event sequence, `max_tokens` required, `max_tokens` stop reason, forced tool use, error bodies (incl. 529) in sim/anthropic.go
+- [x] T018 [P] [US2] Copy fixtures from anthropic-sdk-python v2.5.0 (basic, tool use) and add non-streaming and error fixtures in testdata/wire/anthropic/ with sources
+- [x] T019 [P] [US2] Fixture structure, event-order and replay-determinism tests in sim/anthropic_test.go
+- [x] T020 [US2] Implement `/v1/messages` non-streaming and streaming event sequence, `max_tokens` required, `max_tokens` stop reason, forced tool use, error bodies (incl. 529) in sim/anthropic.go
 
 ## Phase 6: User Story 3 — Latency model (P1)
 

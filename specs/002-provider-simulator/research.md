@@ -58,7 +58,8 @@ Sources were read on 2026-11-04 at the pinned versions. No provider API was call
   errors are sent as `event: error`.
 - **Sources**: fixtures `tests/lib/streaming/fixtures/basic_response.txt` and `tool_use_response.txt` in
   [anthropic-sdk-python v2.5.0](https://github.com/anthropics/anthropic-sdk-python/tree/v2.5.0/tests/lib/streaming/fixtures)
-  (MIT); [Messages API](https://docs.claude.com/en/api/messages),
+  (Apache-2.0; attribution in `NOTICE`). The two fixtures were recorded at different API versions, so
+  contract tests check that the simulator contains every fixture field rather than exact equality; [Messages API](https://docs.claude.com/en/api/messages),
   [streaming](https://docs.claude.com/en/docs/build-with-claude/streaming),
   [errors](https://docs.claude.com/en/api/errors).
 

@@ -44,6 +44,19 @@ Errors use the OpenAI body `{"error":{"message","type","param","code"}}`: 400 fo
 over 32 MiB. Every response carries `x-request-id`. Shapes are checked against the fixtures in
 [`testdata/wire/openai/`](../testdata/wire/README.md).
 
+## Anthropic flavour
+
+| Method | Path | Behaviour |
+| --- | --- | --- |
+| POST | `/v1/messages` | JSON or SSE (`stream: true`) with the official event order: `message_start`, `content_block_start`, `ping`, `content_block_delta`…, `content_block_stop`, `message_delta` (stop reason and output usage), `message_stop`. `max_tokens` is required, as in the real API; reaching it gives `stop_reason: "max_tokens"`. A forced tool (`tool_choice` of type `tool` or `any`) returns one `tool_use` block with input `{}` streamed as `input_json_delta`, and `stop_reason: "tool_use"`. |
+
+`system` and message `content` may be strings or arrays of blocks; text, tool inputs and tool results
+count towards `input_tokens`. Usage reports `cache_creation_input_tokens` and `cache_read_input_tokens`
+as 0 and `service_tier: "standard"`. Errors use `{"type":"error","error":{"type","message"},
+"request_id"}` (`invalid_request_error` 400, `authentication_error` 401, `not_found_error` 404,
+`request_too_large` 413). The `anthropic-version` header is accepted and not enforced; every response
+carries `request-id`. Shapes are checked against [`testdata/wire/anthropic/`](../testdata/wire/README.md).
+
 ## Admin API
 
 | Method | Path | Result |
