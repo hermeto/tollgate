@@ -1,0 +1,39 @@
+# golangci-lint v2 configuration. Run with `make lint` (pinned in tools/go.mod).
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - copyloopvar
+    - errorlint
+    - gosec
+    - misspell
+    - noctx
+    - revive
+    - unconvert
+    - unparam
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true # internal packages; exported docs enforced by review, not lint noise
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      # Tests may use weak randomness and unchecked closes.
+      - path: _test\.go
+        linters: [gosec, errcheck]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/hermeto/tollgate
