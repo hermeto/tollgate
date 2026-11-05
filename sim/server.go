@@ -33,6 +33,7 @@ type Server struct {
 	seeds  *seeds
 	models map[string]bool
 	mux    *http.ServeMux
+	reqlog *requestLog
 }
 
 // New validates the configuration and builds a simulator.
@@ -51,11 +52,14 @@ func New(cfg Config, opts Options) (*Server, error) {
 		seeds:  newSeeds(cfg.Seed),
 		models: make(map[string]bool, len(cfg.Models)),
 		mux:    http.NewServeMux(),
+		reqlog: newRequestLog(cfg.RequestLog.Size),
 	}
 	for _, m := range cfg.Models {
 		s.models[m] = true
 	}
 	s.mux.HandleFunc("GET /_sim/healthz", s.handleHealth)
+	s.mux.HandleFunc("GET /_sim/requests", s.handleRequestsList)
+	s.mux.HandleFunc("DELETE /_sim/requests", s.handleRequestsClear)
 	switch cfg.Flavor {
 	case FlavorOpenAI:
 		s.registerOpenAI()
@@ -67,12 +71,13 @@ func New(cfg Config, opts Options) (*Server, error) {
 // Config returns the configuration the server runs with.
 func (s *Server) Config() Config { return s.cfg }
 
-// Handler returns the HTTP handler, wrapped with optional request logging.
+// Handler returns the HTTP handler: the request log recorder, wrapped with optional request logging.
 func (s *Server) Handler() http.Handler {
+	h := s.record(s.mux)
 	if !s.opts.LogRequests {
-		return s.mux
+		return h
 	}
-	return s.logRequests(s.mux)
+	return s.logRequests(h)
 }
 
 // ListenAndServe listens on the configured address until ctx is cancelled.
