@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)", "Bash(gh:*)", "Bash(specify:*)", "Bash(uv:*)", "Bash(go:*)", "Bash(make:*)",
+      "Bash(docker:*)", "Bash(docker compose:*)", "Bash(kind:*)", "Bash(kubectl:*)", "Bash(helm:*)",
+      "Bash(golangci-lint:*)", "Bash(govulncheck:*)", "Bash(actionlint:*)", "Bash(shellcheck:*)",
+      "Bash(yamllint:*)", "Bash(markdownlint-cli2:*)", "Bash(pre-commit:*)", "Bash(trivy:*)", "Bash(k6:*)",
+      "Bash(python:*)", "Bash(python3:*)", "Bash(curl localhost:*)", "Bash(curl http://localhost:*)",
+      "Bash(curl http://127.0.0.1:*)", "Bash(jq:*)", "Bash(yq:*)", "Bash(ls:*)", "Bash(cat:*)",
+      "Bash(mkdir:*)", "Bash(cp:*)", "Bash(mv:*)", "Bash(rm:*)", "Bash(brew install:*)"
+    ],
+    "deny": [
+      "Bash(curl https://api.openai.com:*)", "Bash(curl https://api.anthropic.com:*)",
+      "Bash(aws:*)", "Bash(gcloud:*)", "Bash(az:*)", "Bash(terraform:*)", "Bash(tofu:*)",
+      "Bash(gh pr merge:*)", "Bash(gh pr review:*)", "Bash(gh repo delete:*)", "Bash(gh repo edit --visibility:*)",
+      "Bash(git push origin main:*)", "Bash(git push -f origin main:*)", "Bash(git push --force origin main:*)"
+    ]
+  }
+}
