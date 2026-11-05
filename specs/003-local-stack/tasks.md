@@ -50,7 +50,7 @@ description: "Task list for 003 local-stack"
 - [ ] T021 [P] [US3] deploy/compose/gateway.Dockerfile (golang build stage and distroless runtime, both by digest)
 - [ ] T022 [US3] deploy/compose/compose.yaml: project `tollgate`, all services by digest, healthchecks, published ports on 127.0.0.1 (FR-021), postgres volume
 - [ ] T023 [P] [US3] Service configs: deploy/compose/gateway.yaml, otel-collector.yaml, prometheus.yml, tempo.yaml, grafana provisioning (Prometheus, Tempo, Loki data sources)
-- [ ] T024 [US3] scripts/stack.sh (`up` with readiness wait and URL/key banner, `down` with volumes) and Makefile targets `up`, `down` with `PROFILE` (only `local` for now)
+- [ ] T024 [US3] scripts/stack.sh (`up` with readiness wait — HTTP polling from the host for images without healthcheck tools — and URL/key banner; `down` with volumes, then assert no container, network or volume labelled `com.docker.compose.project=tollgate` remains, SC-004) and Makefile targets `up`, `down` with `PROFILE` (only `local` for now)
 - [ ] T025 [US3] scripts/smoke.sh and `make smoke`: non-streaming and streaming requests, trace in Tempo by `tollgate.request_id`, metric in Prometheus
 
 ## Phase 6: User Story 4 — The local stack is tested on every PR (P1)
