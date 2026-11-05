@@ -1,0 +1,198 @@
+{
+  "tokenizer": "o200k_base",
+  "tiktoken": "0.14.0",
+  "samples": [
+    {
+      "id": "en-short",
+      "tokens": 7
+    },
+    {
+      "id": "en-question",
+      "tokens": 17
+    },
+    {
+      "id": "en-prose",
+      "tokens": 34
+    },
+    {
+      "id": "en-technical",
+      "tokens": 35
+    },
+    {
+      "id": "en-long-words",
+      "tokens": 17
+    },
+    {
+      "id": "en-instructions",
+      "tokens": 31
+    },
+    {
+      "id": "en-support",
+      "tokens": 31
+    },
+    {
+      "id": "en-faq",
+      "tokens": 20
+    },
+    {
+      "id": "en-numbers",
+      "tokens": 38
+    },
+    {
+      "id": "en-dates",
+      "tokens": 46
+    },
+    {
+      "id": "en-url",
+      "tokens": 31
+    },
+    {
+      "id": "en-mixed-case",
+      "tokens": 33
+    },
+    {
+      "id": "en-dialogue",
+      "tokens": 38
+    },
+    {
+      "id": "en-list",
+      "tokens": 33
+    },
+    {
+      "id": "en-markdown",
+      "tokens": 48
+    },
+    {
+      "id": "pt-short",
+      "tokens": 8
+    },
+    {
+      "id": "pt-prose",
+      "tokens": 30
+    },
+    {
+      "id": "pt-question",
+      "tokens": 30
+    },
+    {
+      "id": "pt-instructions",
+      "tokens": 28
+    },
+    {
+      "id": "es-prose",
+      "tokens": 26
+    },
+    {
+      "id": "es-question",
+      "tokens": 20
+    },
+    {
+      "id": "fr-prose",
+      "tokens": 32
+    },
+    {
+      "id": "de-prose",
+      "tokens": 32
+    },
+    {
+      "id": "de-compound",
+      "tokens": 27
+    },
+    {
+      "id": "zh-prose",
+      "tokens": 36
+    },
+    {
+      "id": "zh-question",
+      "tokens": 20
+    },
+    {
+      "id": "ja-prose",
+      "tokens": 42
+    },
+    {
+      "id": "ja-question",
+      "tokens": 24
+    },
+    {
+      "id": "ko-prose",
+      "tokens": 25
+    },
+    {
+      "id": "ru-prose",
+      "tokens": 20
+    },
+    {
+      "id": "emoji",
+      "tokens": 23
+    },
+    {
+      "id": "code-go",
+      "tokens": 53
+    },
+    {
+      "id": "code-python",
+      "tokens": 52
+    },
+    {
+      "id": "code-js",
+      "tokens": 84
+    },
+    {
+      "id": "code-sql",
+      "tokens": 54
+    },
+    {
+      "id": "code-shell",
+      "tokens": 48
+    },
+    {
+      "id": "json",
+      "tokens": 55
+    },
+    {
+      "id": "yaml",
+      "tokens": 52
+    },
+    {
+      "id": "log-line",
+      "tokens": 42
+    },
+    {
+      "id": "csv",
+      "tokens": 70
+    },
+    {
+      "id": "math",
+      "tokens": 54
+    },
+    {
+      "id": "whitespace",
+      "tokens": 16
+    },
+    {
+      "id": "hex-ids",
+      "tokens": 74
+    },
+    {
+      "id": "repeated",
+      "tokens": 16
+    },
+    {
+      "id": "single-char",
+      "tokens": 1
+    },
+    {
+      "id": "punctuation",
+      "tokens": 42
+    },
+    {
+      "id": "long-en",
+      "tokens": 114
+    },
+    {
+      "id": "long-pt",
+      "tokens": 85
+    }
+  ]
+}
