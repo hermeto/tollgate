@@ -36,11 +36,26 @@ error body.
 | Method | Path | Behaviour |
 | --- | --- | --- |
 | POST | `/v1/chat/completions` | JSON or SSE (`stream: true`); `stream_options.include_usage` adds `"usage": null` to every chunk and a final chunk with `choices: []` and usage, before `data: [DONE]`. `max_completion_tokens` (or `max_tokens`) cuts the output with `finish_reason: "length"`. A forced tool (`tool_choice: "required"` or naming a function) returns one call with arguments `{}` and `finish_reason: "tool_calls"`. `n > 1` returns 400. |
+| POST | `/v1/embeddings` | Deterministic unit vectors (default 1536 dimensions, `dimensions` overrides) for a string, an array of strings or token arrays; `encoding_format` `float` or `base64` (little-endian float32, the SDKs' default). |
+| GET | `/v1/models`, `/v1/models/{model}` | Configured models. |
 
 Errors use the OpenAI body `{"error":{"message","type","param","code"}}`: 400 for malformed requests,
 401 `invalid_api_key` without a Bearer token, 404 `model_not_found` for unknown models, 413 for bodies
 over 32 MiB. Every response carries `x-request-id`. Shapes are checked against the fixtures in
 [`testdata/wire/openai/`](../testdata/wire/README.md).
+
+## Admin API
+
+| Method | Path | Result |
+| --- | --- | --- |
+| GET | `/_sim/healthz` | 200 with flavor and models |
+| GET | `/_sim/requests` | `{"requests":[…]}`: the last `request_log.size` provider requests, oldest first, with method, path, headers, body (capped at 64 KiB, `body_truncated` when cut) and status |
+| DELETE | `/_sim/requests` | 204, clears the log |
+
+The request log lets end-to-end tests assert what the gateway actually sent upstream, for example that
+PII was redacted or that client headers were stripped. It keeps headers verbatim, so it must only ever
+see fake keys; the simulator's own logs never contain bodies or header values. Admin calls are not
+recorded.
 
 ## Configuration
 

@@ -43,7 +43,7 @@ implementation inside each story.
 - [x] T013 [P] [US1] Record fixtures in testdata/wire/openai/ (chat completion, stream with usage, tool call, embeddings float and base64, models, errors) with testdata/wire/README.md citing sources (research R1, R2)
 - [x] T014 [P] [US1] Fixture structure tests in sim/openai_test.go (same keys, same chunk order; ids and timestamps ignored) and a replay test proving byte-identical bodies for the same seed and request sequence (SC-004)
 - [x] T015 [US1] Implement chat completions non-streaming and streaming with `include_usage`, `max_tokens`/`max_completion_tokens` → `length`, `n > 1` → 400, forced tool calls (FR-017) in sim/openai.go
-- [ ] T016 [US1] Implement `/v1/embeddings` (deterministic unit vectors, float and base64, `dimensions`) and `/v1/models` in sim/openai.go
+- [x] T016 [US1] Implement `/v1/embeddings` (deterministic unit vectors, float and base64, `dimensions`) and `/v1/models` in sim/openai.go
 - [x] T017 [US1] Implement OpenAI error bodies (400, 401, 404 model_not_found, 429, 500, 503) in sim/openai.go
 
 ## Phase 5: User Story 2 — Anthropic flavour (P1)
@@ -64,8 +64,8 @@ implementation inside each story.
 
 ## Phase 8: User Story 6 — Request log (P2)
 
-- [ ] T025 [P] [US6] Tests for ring buffer bounds, ordering and clearing in sim/reqlog_test.go
-- [ ] T026 [US6] Implement sim/reqlog.go and `/_sim/requests` (GET, DELETE); admin calls are not recorded
+- [x] T025 [P] [US6] Tests for ring buffer bounds, ordering and clearing in sim/reqlog_test.go
+- [x] T026 [US6] Implement sim/reqlog.go and `/_sim/requests` (GET, DELETE); admin calls are not recorded
 
 ## Phase 9: User Story 7 — Embeddings forward (P2)
 
