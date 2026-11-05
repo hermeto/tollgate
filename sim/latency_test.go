@@ -127,3 +127,41 @@ func TestWaitStopsWhenClientLeaves(t *testing.T) {
 		t.Fatal("zero wait should succeed")
 	}
 }
+
+// TestDisconnectMidStreamEndsHandler covers the edge case "client disconnects mid-stream": with
+// inter-token delays configured, the handler must stop at the next wait instead of finishing the
+// stream, so no timer or goroutine outlives the client.
+func TestDisconnectMidStreamEndsHandler(t *testing.T) {
+	ts := timedServer(t, FlavorOpenAI, func(c *Config) {
+		c.Latency.InterToken = Distribution{Kind: "fixed", Value: 50}
+		c.OutputTokens = Distribution{Kind: "fixed", Value: 200} // 10 s if streamed to the end
+	})
+	ctx, cancel := context.WithCancel(t.Context())
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, ts.URL+"/v1/chat/completions",
+		strings.NewReader(strings.Replace(chatBody, `{"model"`, `{"stream":true,"model"`, 1)))
+	req.Header.Set("Authorization", "Bearer tg-example-key")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sc := bufio.NewScanner(resp.Body)
+	for frames := 0; frames < 3 && sc.Scan(); {
+		if strings.HasPrefix(sc.Text(), "data: ") {
+			frames++
+		}
+	}
+	cancel()
+	_ = resp.Body.Close()
+	left := time.Now()
+	// The request log records the request when the handler returns.
+	for time.Since(left) < 2*time.Second {
+		if recs := readLog(t, ts.URL); len(recs) == 1 {
+			if d := time.Since(left); d > 500*time.Millisecond {
+				t.Fatalf("handler returned %v after the client left", d)
+			}
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Fatal("handler still running 2 s after the client left")
+}

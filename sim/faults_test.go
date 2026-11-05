@@ -118,8 +118,13 @@ func TestStallMidStream(t *testing.T) {
 	if len(times) < 9 {
 		t.Fatalf("frames = %d", len(times))
 	}
-	if gap := times[6] - times[5]; gap < 300*time.Millisecond {
-		t.Fatalf("gap after 3 tokens = %v, want ≥ 300 ms", gap)
+	// Deadlines are scheduled from the request's arrival: the 4th token can never come before the
+	// stall has elapsed, while the gap between deliveries may lose a few ms of send jitter.
+	if times[6] < 300*time.Millisecond {
+		t.Fatalf("4th token after %v, want ≥ 300 ms", times[6])
+	}
+	if gap := times[6] - times[5]; gap < 290*time.Millisecond {
+		t.Fatalf("gap after 3 tokens = %v, want ≈ 300 ms", gap)
 	}
 	if gap := times[5] - times[4]; gap > 100*time.Millisecond {
 		t.Fatalf("stall happened too early: %v", gap)

@@ -80,9 +80,28 @@ func New(cfg Config, opts Options) (*Server, error) {
 // Config returns the configuration the server runs with.
 func (s *Server) Config() Config { return s.cfg }
 
-// Handler returns the HTTP handler: the request log recorder, wrapped with optional request logging.
+// arrivalKey stores when a request reached the simulator, so latency is measured from arrival.
+type arrivalKey struct{}
+
+// arrival returns the time the request reached the simulator (now if it was not stamped).
+func arrival(r *http.Request) time.Time {
+	if t, ok := r.Context().Value(arrivalKey{}).(time.Time); ok {
+		return t
+	}
+	return time.Now()
+}
+
+// stampArrival records the arrival time before any other work on the request.
+func stampArrival(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), arrivalKey{}, time.Now())))
+	})
+}
+
+// Handler returns the HTTP handler: arrival stamping, then the request log recorder, wrapped with
+// optional request logging.
 func (s *Server) Handler() http.Handler {
-	h := s.record(s.mux)
+	h := stampArrival(s.record(s.mux))
 	if !s.opts.LogRequests {
 		return h
 	}

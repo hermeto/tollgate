@@ -7,7 +7,9 @@ import (
 )
 
 // pace drives the timing of one response: time to first token, inter-token delays and the
-// timeout and stall faults (spec FR-005, FR-007). Every wait ends early when the client leaves.
+// timeout and stall faults (spec FR-005, FR-007). Delays are absolute deadlines counted from the
+// request's arrival, so parsing and writing time is absorbed instead of added (spec SC-007), and
+// every wait ends early when the client leaves.
 type pace struct {
 	ctx      context.Context
 	rng      *rand.Rand
@@ -16,9 +18,15 @@ type pace struct {
 	hold     time.Duration // timeout-before-first-token fault
 	stallAt  int           // content tokens sent before the stall; -1 means no stall
 	stallFor time.Duration
+	at       time.Time // deadline of the previous event; starts at the request's arrival
 }
 
 func millis(v float64) time.Duration { return time.Duration(v * float64(time.Millisecond)) }
+
+// waitUntil sleeps until the deadline or until ctx is done, and reports whether it was reached.
+func waitUntil(ctx context.Context, deadline time.Time) bool {
+	return wait(ctx, time.Until(deadline))
+}
 
 // wait sleeps for d or until ctx is done, and reports whether the full delay elapsed.
 func wait(ctx context.Context, d time.Duration) bool {
@@ -42,7 +50,8 @@ func (p *pace) first() bool {
 	if p.stallAt == 0 {
 		d += p.stallFor
 	}
-	return wait(p.ctx, d)
+	p.at = p.at.Add(d)
+	return waitUntil(p.ctx, p.at)
 }
 
 // next waits before content token number sent+1 (sent ≥ 1 tokens already delivered).
@@ -51,7 +60,8 @@ func (p *pace) next(sent int) bool {
 	if p.stallAt > 0 && sent == p.stallAt {
 		d += p.stallFor
 	}
-	return wait(p.ctx, d)
+	p.at = p.at.Add(d)
+	return waitUntil(p.ctx, p.at)
 }
 
 // whole waits for a complete non-streaming response of n tokens: first token plus n−1 gaps.
@@ -61,5 +71,6 @@ func (p *pace) whole(n int) bool {
 	for i := 1; i < n; i++ {
 		d += millis(p.itl.sample(p.rng))
 	}
-	return wait(p.ctx, d)
+	p.at = p.at.Add(d)
+	return waitUntil(p.ctx, p.at)
 }
