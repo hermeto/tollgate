@@ -10,6 +10,16 @@
 plugs into a pipeline; the pipeline and the local stack must exist first, with observability from day
 one, so each feature lands with measurements."
 
+## Clarifications
+
+### Session 2026-11-05
+
+- Q: Which Redis-compatible store does the stack use? → A: Valkey 9.1 (BSD-3-Clause), protocol-compatible with Redis. (decided by agent: Redis 8 is distributed under AGPL/RSAL/SSPL terms, and an Apache-2.0 reference project should not pull copyleft or source-available servers into its default stack; the client side stays Redis-compatible.)
+- Q: Which ports do the API and the operational endpoints use? → A: API on 8080; `/healthz`, `/readyz` and `/metrics` on 8081. (decided by agent: separate ports keep probes and scrapes out of API access logs and policies, and avoid Prometheus' own 9090.)
+- Q: Where does the upstream credential come from? → A: From an environment variable named in the config (`credential_env`); the local profile sets it to the fake value `tg-example-upstream`, and the gateway never forwards the client's `Authorization` header. (decided by agent: FR-ID-3 keeps provider credentials inside the gateway; the simulator accepts any value.)
+- Q: What does the client receive when the upstream closes a stream early? → A: A final SSE data event `{"error":{"message":"upstream closed the stream","type":"server_error","code":"upstream_stream_error"}}` and the connection closes without `data: [DONE]`. (decided by agent: OpenAI streams errors as data events, and a missing `[DONE]` lets SDKs detect the truncation.)
+- Q: Which example keys does `make up` print before virtual keys exist (005)? → A: The fake upstream credential and a placeholder client key `tg-example-local`, labelled "not validated until feature 005". (decided by agent: the playbook asks for example keys; printing obviously fake, labelled values avoids implying auth exists.)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Faithful streaming passthrough (Priority: P1)
@@ -119,8 +129,8 @@ Readiness reflects the health of each configured dependency according to its dec
 
 ### Edge Cases
 
-- The upstream closes the connection mid-stream: the client stream ends with a protocol-correct error
-  event and the request is recorded as an upstream error.
+- The upstream closes the connection mid-stream: the client stream ends with an `upstream_stream_error`
+  data event and no `[DONE]`, and the request is recorded as an upstream error.
 - The client cancels: the upstream request is cancelled within one read.
 - Request bodies over the configured limit: 413, no upstream call.
 - The upstream is down at start-up: the gateway starts and answers 502 in the caller's protocol format.
@@ -150,22 +160,25 @@ Readiness reflects the health of each configured dependency according to its dec
   for the upstream) as a metric.
 - **FR-010**: Every request MUST produce a server span with one child span per Stage and a client span for
   the upstream call, exported over OTLP; export failures MUST NOT block requests (FR-OBS-1 skeleton).
-- **FR-011**: The gateway MUST expose `/healthz`, `/readyz` and `/metrics` on a separate port from the API.
+- **FR-011**: The gateway MUST expose `/healthz`, `/readyz` and `/metrics` on a separate port from the API
+  (API 8080, operations 8081 by default).
 - **FR-012**: Dependencies (Redis-compatible store, PostgreSQL) MUST be declared in configuration with a
   fail mode (`open` or `closed`); readiness MUST fail for an unreachable fail-closed dependency and
   report fail-open ones as degraded; every transition MUST be logged (NFR-2).
 - **FR-013**: `make up`, `make down` and `make smoke` MUST manage a Docker Compose stack with the gateway,
   both simulators, a Redis-compatible store, PostgreSQL, OpenTelemetry Collector, Prometheus, Tempo,
   Loki and Grafana, all images pinned by digest and available for arm64 and amd64.
-- **FR-014**: `make up` MUST print the service URLs and example keys; `make down` MUST remove all project
-  containers, networks and volumes.
+- **FR-014**: `make up` MUST print the service URLs and example keys (fake, labelled as not validated
+  until 005); `make down` MUST remove all project containers, networks and volumes.
 - **FR-015**: A CI job `e2e-local` MUST run up → smoke → end-to-end tests → down on every PR and be
   aggregated by `ci-gate` (NFR-8).
 - **FR-016**: Gateway configuration MUST be YAML validated by `schemas/gateway.schema.json`; the default
   upstream in every shipped config MUST be the simulator.
 - **FR-017**: The gateway MUST NOT forward hop-by-hop headers or the client's `Authorization` header; the
-  upstream credential comes from gateway configuration (environment variable reference), never from the
+  upstream credential comes from the environment variable named by `credential_env`, never from the
   client.
+- **FR-018**: When the upstream closes a stream early, the gateway MUST send a final OpenAI-format error
+  data event (`upstream_stream_error`) and close the stream without `[DONE]`.
 
 ### Key Entities
 
