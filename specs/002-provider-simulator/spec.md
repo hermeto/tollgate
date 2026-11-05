@@ -88,7 +88,7 @@ outputs; they are identical. Change the seed and they differ.
 **Acceptance Scenarios**:
 
 1. **Given** a fixed TTFT of 200 ms and inter-token delay of 20 ms, **When** a 10-token stream is
-   served, **Then** the first content arrives after about 200 ms and the stream lasts about 380 ms.
+   served, **Then** the first content arrives after 200–220 ms and the stream lasts 380–420 ms.
 2. **Given** the same seed and the same request sequence, **When** replayed, **Then** response text,
    token counts and sampled delays are identical.
 3. **Given** identical request bodies, **When** sent at any time, **Then** the generated text is
@@ -187,6 +187,10 @@ it, from the deterministic generator.
 - Fault rates summing above 100%: the configuration is rejected.
 - An outage window that has already ended: ignored.
 - `n > 1` choices (OpenAI): rejected with 400 (documented as unsupported).
+- Anthropic request without `max_tokens`: 400 `invalid_request_error`, as the real API does.
+- Embeddings forward URL unreachable or failing: 502 with an OpenAI-shaped `server_error`; the
+  simulator never falls back to synthetic vectors silently.
+- `stop` sequences: accepted and ignored (documented); the output never contains them by construction.
 
 ## Requirements *(mandatory)*
 
@@ -212,7 +216,8 @@ it, from the deterministic generator.
 - **FR-009**: Embeddings MUST be deterministic unit vectors of a configurable dimension (default 1536),
   in float or base64 encoding; an optional forward mode MUST proxy embeddings to a configured local URL.
 - **FR-010**: `/_sim/requests` MUST return the last N requests (default 1000) with method, path, headers
-  and body, and MUST support clearing.
+  and body, and MUST support clearing. Request bodies and auth header values MUST NOT be written to the
+  simulator's own logs; they are only available through this endpoint.
 - **FR-011**: Configuration MUST be YAML validated by a JSON Schema (`schemas/sim.schema.json`).
 - **FR-012**: Wire-format fixtures MUST be stored in `testdata/wire/{openai,anthropic}/` with a README
   citing the official source of each.
@@ -229,6 +234,8 @@ it, from the deterministic generator.
 - **FR-018**: The simulator MUST bind to `127.0.0.1` unless `--host` is given.
 - **FR-019**: Per-request randomness MUST be seeded from the global seed, the request-body hash and the
   occurrence count of that body.
+- **FR-020**: On SIGINT or SIGTERM the simulator MUST stop accepting connections and let in-flight
+  requests finish for up to 5 seconds before exiting.
 
 ### Key Entities
 
@@ -257,6 +264,9 @@ it, from the deterministic generator.
   within one request after being cleared.
 - **SC-006**: Token-count mean absolute error against the `o200k_base` reference tokenizer on the
   committed corpus is documented and ≤ 15%.
+- **SC-007**: Under 1,000 concurrent streaming requests with a fixed 100 ms time to first token, the
+  observed time to first token stays within +5 ms of the configured value at p99, so the simulator does
+  not distort gateway overhead measurements.
 
 ## Assumptions
 
