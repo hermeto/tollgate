@@ -18,9 +18,9 @@ that prints its version gives CI something real to lint, test and release.
 for pre-commit.
 
 **Primary Dependencies**: none at runtime. Dev tools pinned in `tools/go.mod` and run with
-`go tool -modfile=tools/go.mod`: golangci-lint v2.15.0, govulncheck v1.1.4, actionlint v1.7.12,
-editorconfig-checker. Pre-commit hooks pinned by commit SHA: pre-commit-hooks v6.0.0,
-shellcheck-py v0.11.0.1, yamllint v1.38.0, markdownlint-cli2 v0.24.0.
+`go tool -modfile=tools/go.mod`: golangci-lint v2.15.0, govulncheck v1.9.0, editorconfig-checker
+v4.0.2. Pre-commit hooks pinned by commit SHA: pre-commit-hooks v6.0.0, shellcheck-py v0.11.0.1,
+yamllint v1.38.0, markdownlint-cli2 v0.24.0, actionlint v1.7.12.
 
 **Storage**: N/A.
 

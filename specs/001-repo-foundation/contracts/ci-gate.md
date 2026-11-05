@@ -1,4 +1,6 @@
-# Contract: `scripts/ci-gate.sh`
+# Contracts: merge-gating scripts
+
+## `scripts/ci-gate.sh`
 
 ```text
 Usage: ci-gate.sh <event-name>
@@ -12,7 +14,7 @@ Rule: a job passes when its result is `success`. On events other than `pull_requ
 `pull_request_target`, the PR-only jobs `pr-title`, `dco` and `dependency-review` also pass when
 `skipped`. An empty object is a failure (nothing was checked).
 
-# Contract: `scripts/check-dco.sh`
+## `scripts/check-dco.sh`
 
 ```text
 Usage: check-dco.sh <base-ref> <head-ref>

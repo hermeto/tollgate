@@ -44,9 +44,12 @@ pinned by full commit SHA (actions, pre-commit hooks) or exact version (Go tools
 ## R3. Go developer tools via `go tool -modfile=tools/go.mod`
 
 - **Decision**: a separate `tools/go.mod` with `tool` directives for
-  `github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0`, `golang.org/x/vuln/cmd/govulncheck@v1.1.4`,
-  `github.com/rhysd/actionlint/cmd/actionlint@v1.7.12` and
-  `github.com/editorconfig-checker/editorconfig-checker/v4/cmd/editorconfig-checker@v4.0.2`.
+  `github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0`, `golang.org/x/vuln/cmd/govulncheck@v1.9.0`
+  and `github.com/editorconfig-checker/editorconfig-checker/v4/cmd/editorconfig-checker@v4.0.2`.
+- **Implementation note**: actionlint v1.7.12 does not compile inside the shared tools module (MVS
+  selects a YAML library version newer than actionlint supports), so actionlint runs as its own pinned
+  pre-commit hook, which builds it in an isolated module. `gh` tag listings are unsorted; versions were
+  re-checked with `go list -m -versions` (govulncheck latest is v1.9.0, not v1.1.4).
 - **Rationale**: the `tool` directive (Go ≥ 1.24) pins tools in go.sum without polluting the main
   module's dependency graph; the same command works on macOS, Linux and CI without Homebrew (FR-011).
 - **Alternatives considered**: `tools.go` blank imports in the main module (pollutes go.mod), Homebrew
@@ -56,8 +59,8 @@ pinned by full commit SHA (actions, pre-commit hooks) or exact version (Go tools
 
 - **Decision**: pre-commit 4.x (installed with `uv tool install pre-commit`), hooks pinned by SHA:
   pre-commit-hooks v6.0.0 (3e8a870…), shellcheck-py v0.11.0.1 (745efac…), yamllint v1.38.0 (cba56bc…),
-  markdownlint-cli2 v0.24.0 (341e2a3…). Actionlint and editorconfig-checker run from `go tool` as
-  local hooks so there is one pinned version of each.
+  markdownlint-cli2 v0.24.0 (341e2a3…), actionlint v1.7.12 (914e7df…). editorconfig-checker runs from
+  `go tool` as a local hook so there is one pinned version.
 - **Rationale**: pre-commit manages hook runtimes (Python, Node via nodeenv) itself, so Linux users
   without Node or Homebrew still get pinned linters.
 - **Alternatives considered**: installing each linter globally (unpinned, platform-specific).
@@ -71,7 +74,7 @@ pinned by full commit SHA (actions, pre-commit hooks) or exact version (Go tools
   green when a dependency is skipped; `if: always()` plus an explicit result check closes that hole.
   Putting the logic in a script makes it unit-testable.
 - **Source**: GitHub Docs, "Using jobs in a workflow — defining prerequisite jobs" and "Contexts —
-  needs context" (https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#needs-context).
+  needs context" (<https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#needs-context>).
 
 ## R6. DCO check without a third-party app
 
@@ -89,8 +92,8 @@ pinned by full commit SHA (actions, pre-commit hooks) or exact version (Go tools
 - **Base image**: `gcr.io/distroless/static-debian13:nonroot@sha256:25ac8f0c3b2334a9eb05452266bd4697864a8c8ef0ef71e5e6480d7f92868329`
   (linux/amd64 and linux/arm64/v8).
 - **Rationale**: Conventional Commits already drive versioning; keyless signing avoids stored keys.
-- **Sources**: https://github.com/googleapis/release-please-action, https://goreleaser.com/customization/docker_v2/,
-  https://docs.sigstore.dev/cosign/signing/overview/, https://github.com/actions/attest-build-provenance.
+- **Sources**: <https://github.com/googleapis/release-please-action>, <https://goreleaser.com/customization/docker_v2/>,
+  <https://docs.sigstore.dev/cosign/signing/overview/>, <https://github.com/actions/attest-build-provenance.>
 
 ## R8. Ruleset, labels and settings as code
 
