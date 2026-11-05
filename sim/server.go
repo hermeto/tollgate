@@ -63,6 +63,8 @@ func New(cfg Config, opts Options) (*Server, error) {
 	switch cfg.Flavor {
 	case FlavorOpenAI:
 		s.registerOpenAI()
+	case FlavorAnthropic:
+		s.registerAnthropic()
 	}
 	s.mux.HandleFunc("/", s.handleUnknown)
 	return s, nil

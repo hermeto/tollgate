@@ -109,3 +109,52 @@ func assertSameShape(t *testing.T, name string, want, got any) {
 		t.Fatalf("%s: shape mismatch\nfixture:\n%s\nsimulator:\n%s", name, w, g)
 	}
 }
+
+// assertShapeSubset requires every field of the fixture to exist in got with the same shape; got may
+// have newer fields (Anthropic fixtures were recorded at different API versions).
+func assertShapeSubset(t *testing.T, name string, fixture, got any) {
+	t.Helper()
+	if path, ok := shapeSubset(fixture, got, "$"); !ok {
+		t.Fatalf("%s: simulator output lacks or changes the fixture field at %s", name, path)
+	}
+}
+
+// opaqueFields hold caller-defined objects (tool arguments): only their type is part of the contract.
+var opaqueFields = map[string]bool{"input": true}
+
+func shapeSubset(want, got any, path string) (string, bool) {
+	switch w := want.(type) {
+	case map[string]any:
+		g, ok := got.(map[string]any)
+		if !ok {
+			return path, false
+		}
+		for k, wv := range w {
+			gv, ok := g[k]
+			if !ok {
+				return path + "." + k, false
+			}
+			if opaqueFields[k] {
+				if _, isObj := gv.(map[string]any); !isObj {
+					return path + "." + k, false
+				}
+				continue
+			}
+			if p, ok := shapeSubset(wv, gv, path+"."+k); !ok {
+				return p, false
+			}
+		}
+		return "", true
+	case []any:
+		g, ok := got.([]any)
+		if !ok {
+			return path, false
+		}
+		if len(w) == 0 || len(g) == 0 {
+			return "", true
+		}
+		return shapeSubset(w[0], g[0], path+"[0]")
+	default:
+		return path, reflect.DeepEqual(want, got)
+	}
+}

@@ -32,3 +32,27 @@ Sources, read on 2026-11-05:
 | `embeddings_base64.json` | `encoding_format: base64` (little-endian float32; the SDKs request this by default) | `resources/embeddings.py` in openai-python v3.46.0 |
 | `models.json` | model list | Models API reference example |
 | `error_401.json`, `error_404_model.json`, `error_429.json` | error bodies | Error codes guide |
+
+## Anthropic (`anthropic/`)
+
+Sources, read on 2026-11-05:
+
+- [anthropic-sdk-python v2.5.0](https://github.com/anthropics/anthropic-sdk-python/tree/v2.5.0/tests/lib/streaming/fixtures)
+  (Apache-2.0, see `NOTICE`) — streaming fixtures copied verbatim.
+- [Messages API reference](https://docs.claude.com/en/api/messages),
+  [streaming guide](https://docs.claude.com/en/docs/build-with-claude/streaming),
+  [tool use guide](https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview) and
+  [errors](https://docs.claude.com/en/api/errors) — response and error examples.
+
+| File | Shape | Source |
+| --- | --- | --- |
+| `message.json` | non-streaming text message | Messages API reference example |
+| `message_tool_use.json` | non-streaming `tool_use` block, `stop_reason: tool_use` | Tool use guide example |
+| `message_stream.sse` | `message_start` → `content_block_start` → `ping` → `content_block_delta`… → `content_block_stop` → `message_delta` → `message_stop` | SDK fixture `basic_response.txt` |
+| `message_tool_use_stream.sse` | text block followed by a `tool_use` block streamed with `input_json_delta` | SDK fixture `tool_use_response.txt` |
+| `error_401.json`, `error_404.json`, `error_429.json`, `error_529.json` | error bodies with `request_id` | Errors reference |
+
+The SDK fixtures were recorded at different API versions: `basic_response.txt` has the older usage object
+(`input_tokens`, `output_tokens` only), `tool_use_response.txt` the current one (cache token fields,
+`service_tier`, tool `caller`). Contract tests therefore require the simulator to contain **every** field
+of a fixture with the same type, and allow newer fields.
