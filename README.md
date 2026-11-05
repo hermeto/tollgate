@@ -16,6 +16,7 @@ latency and saves in dollars.
 
 ## Documentation
 
+- [Gateway skeleton and local stack](docs/local-stack.md) — the Stage pipeline every policy plugs into.
 - [Provider simulator](docs/simulator.md) — `tollgate sim`, the deterministic OpenAI and Anthropic test double
   (`make sdk-compat` runs the official SDKs against it).
 
