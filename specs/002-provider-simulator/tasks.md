@@ -40,11 +40,11 @@ implementation inside each story.
 
 ## Phase 4: User Story 1 — OpenAI flavour (P1)
 
-- [ ] T013 [P] [US1] Record fixtures in testdata/wire/openai/ (chat completion, stream with usage, tool call, embeddings float and base64, models, errors) with testdata/wire/README.md citing sources (research R1, R2)
-- [ ] T014 [P] [US1] Fixture structure tests in sim/openai_test.go (same keys, same chunk order; ids and timestamps ignored) and a replay test proving byte-identical bodies for the same seed and request sequence (SC-004)
-- [ ] T015 [US1] Implement chat completions non-streaming and streaming with `include_usage`, `max_tokens`/`max_completion_tokens` → `length`, `n > 1` → 400, forced tool calls (FR-017) in sim/openai.go
+- [x] T013 [P] [US1] Record fixtures in testdata/wire/openai/ (chat completion, stream with usage, tool call, embeddings float and base64, models, errors) with testdata/wire/README.md citing sources (research R1, R2)
+- [x] T014 [P] [US1] Fixture structure tests in sim/openai_test.go (same keys, same chunk order; ids and timestamps ignored) and a replay test proving byte-identical bodies for the same seed and request sequence (SC-004)
+- [x] T015 [US1] Implement chat completions non-streaming and streaming with `include_usage`, `max_tokens`/`max_completion_tokens` → `length`, `n > 1` → 400, forced tool calls (FR-017) in sim/openai.go
 - [ ] T016 [US1] Implement `/v1/embeddings` (deterministic unit vectors, float and base64, `dimensions`) and `/v1/models` in sim/openai.go
-- [ ] T017 [US1] Implement OpenAI error bodies (400, 401, 404 model_not_found, 429, 500, 503) in sim/openai.go
+- [x] T017 [US1] Implement OpenAI error bodies (400, 401, 404 model_not_found, 429, 500, 503) in sim/openai.go
 
 ## Phase 5: User Story 2 — Anthropic flavour (P1)
 
@@ -100,17 +100,19 @@ T013 fixtures   T014 fixture tests   # in parallel, then T015–T017 sequentiall
 
 ## PR slices (stacked, each < 800 changed lines excluding fixtures, lockfiles and Spec Kit artifacts)
 
-Re-sliced during implementation: the first estimate (5 slices) put about 2,000 lines in slice 1.
+Re-sliced during implementation: the first estimate (5 slices) put about 2,000 lines in slice 1, and the
+OpenAI flavour alone came to about 950.
 
 | PR | Branch | Tasks |
 | --- | --- | --- |
 | 1 | `002-provider-simulator` | Spec Kit artifacts, T001–T005 (CLI, schema, config) |
 | 2 | `002-provider-simulator-iter1` | T006–T009 (RNG, SSE, server skeleton, `tollgate sim`) |
 | 3 | `002-provider-simulator-iter2` | T010–T012 (US5 token counting, generator) |
-| 4 | `002-provider-simulator-iter3` | T013–T017 (US1 OpenAI flavour) |
-| 5 | `002-provider-simulator-iter4` | T018–T020, T025–T026 (US2 Anthropic, US6 request log) |
-| 6 | `002-provider-simulator-iter5` | T021–T024 (US3 latency, US4 faults) |
-| 7 | `002-provider-simulator-iter6` | T027–T036 (US7, SDK compatibility, polish) |
+| 4 | `002-provider-simulator-iter3` | T013–T015, T017 (US1 chat completions) |
+| 5 | `002-provider-simulator-iter4` | T016, T025–T026 (US1 embeddings and models, US6 request log) |
+| 6 | `002-provider-simulator-iter5` | T018–T020 (US2 Anthropic) |
+| 7 | `002-provider-simulator-iter6` | T021–T024 (US3 latency, US4 faults) |
+| 8 | `002-provider-simulator-iter7` | T027–T036 (US7, SDK compatibility, polish) |
 
 Feature 003 branches from the last slice.
 

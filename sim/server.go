@@ -3,6 +3,7 @@ package sim
 import (
 	"context"
 	"errors"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -10,6 +11,9 @@ import (
 	"strings"
 	"time"
 )
+
+// maxBodyBytes bounds request bodies; larger requests get a provider-shaped 413.
+const maxBodyBytes = 32 << 20
 
 // shutdownGrace is how long in-flight requests may run after SIGINT/SIGTERM (spec FR-020).
 const shutdownGrace = 5 * time.Second
@@ -52,6 +56,10 @@ func New(cfg Config, opts Options) (*Server, error) {
 		s.models[m] = true
 	}
 	s.mux.HandleFunc("GET /_sim/healthz", s.handleHealth)
+	switch cfg.Flavor {
+	case FlavorOpenAI:
+		s.registerOpenAI()
+	}
 	s.mux.HandleFunc("/", s.handleUnknown)
 	return s, nil
 }
@@ -143,6 +151,21 @@ func (s *Server) requireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 		next(w, r)
 	}
+}
+
+// readBody reads a bounded request body, writing a provider-shaped error and returning false on failure.
+func (s *Server) readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxBodyBytes))
+	if err != nil {
+		var tooLarge *http.MaxBytesError
+		if errors.As(err, &tooLarge) {
+			s.writeError(w, http.StatusRequestEntityTooLarge, errTooLarge, "request body too large")
+			return nil, false
+		}
+		s.writeError(w, http.StatusBadRequest, errInvalidRequest, "could not read request body")
+		return nil, false
+	}
+	return body, true
 }
 
 // statusRecorder captures the status code for request logging and keeps Flush/Hijack reachable.

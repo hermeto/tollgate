@@ -31,6 +31,17 @@ Every provider endpoint requires the provider's auth header (`Authorization: Bea
 credential without the simulator ever holding a real key. A missing header returns the provider's 401
 error body.
 
+## OpenAI flavour
+
+| Method | Path | Behaviour |
+| --- | --- | --- |
+| POST | `/v1/chat/completions` | JSON or SSE (`stream: true`); `stream_options.include_usage` adds `"usage": null` to every chunk and a final chunk with `choices: []` and usage, before `data: [DONE]`. `max_completion_tokens` (or `max_tokens`) cuts the output with `finish_reason: "length"`. A forced tool (`tool_choice: "required"` or naming a function) returns one call with arguments `{}` and `finish_reason: "tool_calls"`. `n > 1` returns 400. |
+
+Errors use the OpenAI body `{"error":{"message","type","param","code"}}`: 400 for malformed requests,
+401 `invalid_api_key` without a Bearer token, 404 `model_not_found` for unknown models, 413 for bodies
+over 32 MiB. Every response carries `x-request-id`. Shapes are checked against the fixtures in
+[`testdata/wire/openai/`](../testdata/wire/README.md).
+
 ## Configuration
 
 ```yaml
