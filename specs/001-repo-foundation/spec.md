@@ -156,7 +156,8 @@ definition has a weekly schedule and a default-branch push trigger.
   list and a code-owners file.
 - **FR-002**: The repository MUST provide structured issue forms for bug reports, feature requests,
   documentation changes and policy proposals, plus an issue-template configuration that routes
-  questions to Discussions and disables blank issues.
+  questions to Discussions and disables blank issues. Every form MUST warn reporters not to paste
+  prompts, responses, API keys or personal data, and route vulnerabilities to private reporting.
 - **FR-003**: The repository MUST provide a pull-request template containing the sections defined in
   playbook §5.3.
 - **FR-004**: Repository settings MUST be versioned as code: the default-branch ruleset, the label set
@@ -172,7 +173,8 @@ definition has a weekly schedule and a default-branch push trigger.
 - **FR-007**: The sign-off check MUST verify a `Signed-off-by` trailer on every non-merge commit in the
   PR without relying on a third-party app.
 - **FR-008**: Security scanning MUST include CodeQL (Go, Python, Actions), OpenSSF Scorecard (weekly and
-  on pushes to the default branch) and a Trivy filesystem scan.
+  on pushes to the default branch) and a Trivy filesystem scan for vulnerabilities, secrets and
+  misconfigurations that fails on HIGH or CRITICAL findings.
 - **FR-009**: Automated dependency updates MUST cover Go modules, Python (uv), GitHub Actions and Docker,
   grouped weekly with Conventional Commit prefixes.
 - **FR-010**: Releases MUST be driven by Conventional Commits (changelog and tag) and MUST produce
@@ -188,8 +190,9 @@ definition has a weekly schedule and a default-branch push trigger.
 - **FR-013**: Every workflow MUST declare read-only top-level permissions, per-job least-privilege
   permissions, actions pinned by full commit SHA with a version comment, a concurrency group and job
   timeouts.
-- **FR-014**: The Go module `github.com/hermeto/tollgate` MUST exist with a `tollgate` binary that
-  prints its version (placeholder replaced by later features).
+- **FR-014**: The Go module `github.com/hermeto/tollgate` MUST exist with a `tollgate` binary whose
+  `version` subcommand and `--version` flag print `tollgate <version> (commit <sha>, built <date>)`,
+  with `dev`, `none` and `unknown` when not injected at build time.
 - **FR-015**: Every governance, template and configuration file introduced by this feature MUST be
   linked from the README or the contribution guide.
 
@@ -213,6 +216,8 @@ definition has a weekly schedule and a default-branch push trigger.
   (verified for failure and skip).
 - **SC-004**: The OpenSSF Scorecard workflow runs on schedule and on default-branch pushes; its first
   run completes successfully after the repository is published.
+- **SC-006**: On a pull request, `ci-gate` reports a result within 15 minutes of the push for a change
+  that touches only documentation or the placeholder binary.
 - **SC-005**: Every file listed in FR-001 to FR-004 and FR-012 is reachable from the README or the
   contribution guide in at most one click.
 
