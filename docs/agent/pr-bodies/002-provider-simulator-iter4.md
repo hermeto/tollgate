@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 5 of 8 of the provider simulator: OpenAI `POST /v1/embeddings` (deterministic unit vectors, float
+Slice 5 of 9 of the provider simulator: OpenAI `POST /v1/embeddings` (deterministic unit vectors, float
 or base64, `dimensions`), `GET /v1/models` and `GET /v1/models/{model}`, and the request log
 (`GET`/`DELETE /_sim/requests`) that end-to-end tests use to assert what the gateway sent upstream.
 Spec: [`specs/002-provider-simulator/spec.md`](https://github.com/hermeto/tollgate/blob/002-provider-simulator-iter4/specs/002-provider-simulator/spec.md) (US1, US6). Tracking: #3.

@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 7 of 8 of the provider simulator: the seeded latency model (time to first token, inter-token
+Slice 7 of 9 of the provider simulator: the seeded latency model (time to first token, inter-token
 delay) applied to both flavours, and live fault injection through `/_sim/faults`: error rates by
 status with `retry-after`, TCP resets, timeouts before the first token, mid-stream stalls and outage
 windows.

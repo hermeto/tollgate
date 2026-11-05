@@ -61,7 +61,7 @@ var faultMessages = map[int]string{
 func (s *Server) applyFaults(w http.ResponseWriter, r *http.Request, h uint64) (*pace, bool) {
 	cfg := s.faults.live.Load()
 	rng := s.seeds.perRequest(h)
-	p := &pace{ctx: r.Context(), rng: rng, ttft: s.cfg.Latency.TTFT, itl: s.cfg.Latency.InterToken, stallAt: -1}
+	p := &pace{ctx: r.Context(), rng: rng, ttft: s.cfg.Latency.TTFT, itl: s.cfg.Latency.InterToken, stallAt: -1, at: arrival(r)}
 
 	if o := cfg.Outage; o != nil && o.Start != nil && o.End != nil {
 		if now := time.Now(); !now.Before(*o.Start) && now.Before(*o.End) {

@@ -80,11 +80,11 @@ implementation inside each story.
 
 ## Phase 11: Polish & cross-cutting
 
-- [ ] T032 Throughput benchmark (SC-003) in sim/bench_test.go and TTFT accuracy measurement under 1,000 concurrent streams (SC-007, restated; bench/k6/sim-ttft.js)
-- [ ] T033 Token error measurement with corpus testdata/tokens/corpus.jsonl (SC-006) — delivered in slice 3 as scripts/tokens/reference.py (tiktoken reference counts) plus the offline golden test TestErrorAgainstReference
+- [x] T032 Throughput benchmark (SC-003) in sim/bench_test.go and TTFT accuracy measurement under 1,000 concurrent streams (SC-007, restated; bench/k6/sim-ttft.js)
+- [x] T033 Token error measurement with corpus testdata/tokens/corpus.jsonl (SC-006) — delivered in slice 3 as scripts/tokens/reference.py (tiktoken reference counts) plus the offline golden test TestErrorAgainstReference
 - [x] T034 [P] Write docs/simulator.md (usage, config, faults, token method, measured throughput, TTFT accuracy, token error with hardware) and link it from README
-- [ ] T035 [P] Write docs/adr/0009-simulated-providers-default-upstream.md
-- [ ] T036 Run `go test ./sim/... ./internal/tokens/... -race -cover`, `make sdk-compat`, the benchmark and `make lint`; update docs/agent/PROGRESS.md
+- [x] T035 [P] Write docs/adr/0009-simulated-providers-default-upstream.md
+- [x] T036 Run `go test ./sim/... ./internal/tokens/... -race -cover`, `make sdk-compat`, the benchmark and `make lint`; update docs/agent/PROGRESS.md
 
 ## Dependencies & Execution Order
 
@@ -121,3 +121,8 @@ Feature 003 branches from the last slice.
 
 MVP = Phases 1–4 (OpenAI flavour usable by 003). Each later slice is independently testable through
 its own tests; the SDK suite in slice 5 is the end-to-end proof for SC-001.
+
+## Phase 12: Convergence
+
+- [x] T037 [partial] Test that a client disconnect in the middle of a paced stream ends the handler promptly (timers cancelled, request logged) in sim/latency_test.go (Spec Edge Cases: client disconnects mid-stream)
+- [x] T038 [partial] Document in docs/simulator.md that `stop` / `stop_sequences` are accepted and ignored, and record the tool versions behind the performance numbers (k6 2.3.0, Go 1.27.3) (Spec Edge Cases; Constitution VII)

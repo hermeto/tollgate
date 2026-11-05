@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 1 of 8 of the provider simulator (`tollgate sim`): the Spec Kit artifacts for the whole feature,
+Slice 1 of 9 of the provider simulator (`tollgate sim`): the Spec Kit artifacts for the whole feature,
 the move of the `tollgate` CLI to cobra, and the simulator configuration (`sim.Config`) loaded from YAML
 and validated by `schemas/sim.schema.json`, with flavor defaults, flag overrides and the semantic checks
 the schema cannot express (fault rates summing above 1, min above max, 529 outside Anthropic).
@@ -20,7 +20,7 @@ and FR-009. The CLI, endpoints and behaviour arrive in later slices.
 - CLI framework: cobra v1.10.2 (consistent flags and help for ~10 subcommands; generates the CLI reference in 018). Research R7.
 - JSON Schema validator: santhosh-tekuri/jsonschema v6.0.3, draft 2020-12, schemas embedded with `go:embed` (reused by policies in 005). Research R8.
 - Latency distributions are in milliseconds; YAML status keys like `429:` are normalised to strings before validation.
-- 002 is delivered in 8 stacked slices to respect the 800-line rule (tasks.md "PR slices"); slices chain linearly and 003 branches from the last one.
+- 002 is delivered in 9 stacked slices to respect the 800-line rule (tasks.md "PR slices"); slices chain linearly and 003 branches from the last one.
 - Clarifications for the whole feature (auth, tool calls, loopback default, determinism, reference tokenizer): [spec.md](https://github.com/hermeto/tollgate/blob/002-provider-simulator/specs/002-provider-simulator/spec.md#clarifications).
 
 ## How it was verified

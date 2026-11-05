@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 2 of 8 of the provider simulator: the HTTP server skeleton and the `tollgate sim` command.
+Slice 2 of 9 of the provider simulator: the HTTP server skeleton and the `tollgate sim` command.
 The server answers `/_sim/healthz`, requires the provider's auth header on `/v1/*` (any value), returns
 provider-shaped 401/404 bodies, binds to `127.0.0.1` by default and drains in-flight requests for 5 s
 on SIGINT/SIGTERM. Adds the deterministic per-request RNG and the SSE writer used by the flavours.
