@@ -19,6 +19,7 @@ for embeddings.
 - Base64 embeddings are supported from day one because openai-python and openai-node request `encoding_format: base64` by default (research R2).
 - Embedding vectors: PCG seeded by (seed, hash of model and input), normal samples normalised to unit length; usage = `tokens.Count` of each input.
 - Token-array inputs are accepted and hashed as text (enough for compatibility; no tokenizer needed).
+- CodeQL `go/uncontrolled-allocation-size` (first run): the 1–8192 bound checked the request field, not the value reaching `make`; it now applies to the final value and again inside `embed`, with a test for `dimensions: 1e9`.
 - Request log: ring buffer of `request_log.size` records (default 1000), bodies capped at 64 KiB with `body_truncated`, headers verbatim (the simulator only ever sees fake keys); admin endpoints are not recorded; size 0 disables it.
 
 ## How it was verified
