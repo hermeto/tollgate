@@ -27,10 +27,10 @@ implementation inside each story.
 - [x] T003 [P] Write schemas/sim.schema.json (draft 2020-12) per data-model.md: Distribution `kind` "fixed|normal|lognormal", rates "0–1", sum of `error_rates` and `reset_rate` "≤ 1" checked in code
 - [x] T004 [P] Add schemas/schemas.go embedding *.json and a `Validate(name, doc)` helper with tests in schemas/schemas_test.go
 - [x] T005 Implement sim/config.go: defaults per flavour (ports 9001/9002, seed 42, output normal(120, 40, 1..1024), dims 1536, log size 1000), YAML load, schema validation, flag overrides; tests in sim/config_test.go (valid file, unknown field, rate sum > 1)
-- [ ] T006 [P] Implement sim/rng.go: content RNG = PCG(seed, fnv64(body)); latency RNG seeded with seed, body hash and occurrence count (FR-019); tests for determinism and independence
-- [ ] T007 [P] Implement sim/sse.go (event/data framing, flush after each event) with tests
-- [ ] T008 Implement sim/server.go: flavour routing, auth-header check (FR-016), `/_sim/healthz`, graceful shutdown with 5 s grace (FR-020), bind 127.0.0.1 by default (FR-018); tests in sim/server_test.go
-- [ ] T009 Add `tollgate sim` subcommand in cmd/tollgate/sim.go (flags per contracts/cli.md; `--log-requests` logs method, path, status and duration only — never bodies or auth headers, FR-010)
+- [x] T006 [P] Implement sim/rng.go: content RNG = PCG(seed, fnv64(body)); latency RNG seeded with seed, body hash and occurrence count (FR-019); tests for determinism and independence
+- [x] T007 [P] Implement sim/sse.go (event/data framing, flush after each event) with tests
+- [x] T008 Implement sim/server.go: flavour routing, auth-header check (FR-016), `/_sim/healthz`, graceful shutdown with 5 s grace (FR-020), bind 127.0.0.1 by default (FR-018); tests in sim/server_test.go
+- [x] T009 Add `tollgate sim` subcommand in cmd/tollgate/sim.go (flags per contracts/cli.md; `--log-requests` logs method, path, status and duration only — never bodies or auth headers, FR-010)
 
 ## Phase 3: User Story 5 — Documented token counting (P1)
 

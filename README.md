@@ -14,6 +14,10 @@ latency and saves in dollars.
 > 🚧 **Under construction.** See the [v1.0 roadmap](https://github.com/hermeto/tollgate/issues/3) for progress and merge order, and
 > [`docs/product/spec.md`](docs/product/spec.md) for the product specification.
 
+## Documentation
+
+- [Provider simulator](docs/simulator.md) — `tollgate sim`, the deterministic OpenAI and Anthropic test double.
+
 ## Contributing
 
 ```bash
