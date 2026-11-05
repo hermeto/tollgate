@@ -12,7 +12,8 @@ import (
 // maxRecordedBody caps each recorded body so the log stays bounded (size × 64 KiB at most).
 const maxRecordedBody = 64 << 10
 
-// RequestRecord is one entry of the request log (contracts/admin-api.md).
+// RequestRecord is one entry of the request log (contracts/admin-api.md). Status 0 means the
+// connection was dropped without a response (an injected reset).
 type RequestRecord struct {
 	Time          time.Time           `json:"time"`
 	Method        string              `json:"method"`
@@ -98,7 +99,7 @@ func (s *Server) record(next http.Handler) http.Handler {
 		sr := &statusRecorder{ResponseWriter: w}
 		next.ServeHTTP(sr, r)
 		rec.Status = sr.status
-		if rec.Status == 0 {
+		if rec.Status == 0 && !sr.hijacked {
 			rec.Status = http.StatusOK
 		}
 		s.reqlog.add(rec)

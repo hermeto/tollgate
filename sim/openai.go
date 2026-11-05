@@ -155,6 +155,11 @@ func (s *Server) handleOpenAIChat(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	h := requestHash(r.URL.Path, body)
+	p, ok := s.applyFaults(w, r, h)
+	if !ok {
+		return
+	}
 	var req oaiChatRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		s.writeError(w, http.StatusBadRequest, errInvalidRequest, "We could not parse the JSON body of your request: "+err.Error())
@@ -175,7 +180,6 @@ func (s *Server) handleOpenAIChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h := requestHash(r.URL.Path, body)
 	rep := s.openAIReply(s.seeds.content(h), req)
 	prompt := openAIPromptTokens(req)
 	usage := oaiUsage{PromptTokens: prompt, CompletionTokens: rep.completionTokens()}
@@ -185,7 +189,10 @@ func (s *Server) handleOpenAIChat(w http.ResponseWriter, r *http.Request) {
 	created := time.Now().Unix()
 	w.Header().Set("X-Request-Id", newID("req_", 32))
 	if req.Stream {
-		s.streamOpenAIChat(w, r, req, rep, usage, id, created)
+		s.streamOpenAIChat(w, r, p, req, rep, usage, id, created)
+		return
+	}
+	if !p.whole(usage.CompletionTokens) {
 		return
 	}
 	msg := oaiReplyMessage{Role: "assistant", Annotations: []struct{}{}}
@@ -289,7 +296,7 @@ func messageText(raw json.RawMessage) string {
 	return b.String()
 }
 
-func (s *Server) streamOpenAIChat(w http.ResponseWriter, r *http.Request, req oaiChatRequest, rep reply, usage oaiUsage, id string, created int64) {
+func (s *Server) streamOpenAIChat(w http.ResponseWriter, r *http.Request, p *pace, req oaiChatRequest, rep reply, usage oaiUsage, id string, created int64) {
 	includeUsage := req.StreamOptions != nil && req.StreamOptions.IncludeUsage
 	chunk := func(delta oaiDelta, finish *string) oaiChunk {
 		c := oaiChunk{
@@ -301,6 +308,9 @@ func (s *Server) streamOpenAIChat(w http.ResponseWriter, r *http.Request, req oa
 			c.Usage = jsonNull
 		}
 		return c
+	}
+	if !p.first() {
+		return
 	}
 	sse := startSSE(w)
 	send := func(v any) bool {
@@ -318,7 +328,7 @@ func (s *Server) streamOpenAIChat(w http.ResponseWriter, r *http.Request, req oa
 			Index: &zero, ID: newID("call_", 24), Type: "function", Function: oaiFunctionCall{Name: rep.toolName},
 		}}}
 		args := oaiDelta{ToolCalls: []oaiToolCall{{Index: &zero, Function: oaiFunctionCall{Arguments: rep.toolArgs}}}}
-		if !send(chunk(first, nil)) || !send(chunk(args, nil)) {
+		if !send(chunk(first, nil)) || !p.next(1) || !send(chunk(args, nil)) {
 			return
 		}
 		finish = "tool_calls"
@@ -326,10 +336,13 @@ func (s *Server) streamOpenAIChat(w http.ResponseWriter, r *http.Request, req oa
 		if !send(chunk(oaiDelta{Role: "assistant", Content: json.RawMessage(`""`), Refusal: jsonNull}, nil)) {
 			return
 		}
-		for _, p := range rep.pieces {
-			content, _ := json.Marshal(p)
-			if !send(chunk(oaiDelta{Content: content}, nil)) {
+		for i, piece := range rep.pieces {
+			if i > 0 && !p.next(i) {
 				return // client went away: stop generating
+			}
+			content, _ := json.Marshal(piece)
+			if !send(chunk(oaiDelta{Content: content}, nil)) {
+				return
 			}
 		}
 		if rep.truncated {
