@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 001 repo-foundation — complete locally (steps 1–11); step 12 blocked by B1 |
+| Current feature | 001 repo-foundation — step 12 (CI on the PR) |
 | Spec Kit phase | converge clean |
-| Last commit | `docs(agent): record 001 progress` on `001-repo-foundation` |
-| Next step | feature 002 provider-simulator from `001-repo-foundation` |
+| Last commit | `docs(agent): record remote setup` on `001-repo-foundation` |
+| Next step | watch PR 001 checks; continue 002 at `/speckit-checklist` |
 
 ## Features (merge order)
 
@@ -17,36 +17,34 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | --- | --- | --- | --- | --- |
 | 001 | `001-repo-foundation` | done (lint, test, DoD local parts) | not opened (B1) | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
 
-PR metadata to apply when opening: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
+PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
 §6, assignee `hermeto`.
 
 ## Blockers
 
-- **B1 — GitHub repository not created.** `gh repo create tollgate --public …` (playbook §4.4) was
-  refused by the agent's permission classifier ("Create Public Surface"). The agent did not work around
-  it (no private repo, no other host). Everything in §4.4 and every push/PR step is queued below. The
-  maintainer creates the repository (command in "Remote steps queued"), then a session resumes.
-- **B2 — `.claude/settings.json` not written.** Playbook §4.5 asks the agent to write its own
-  permission file; the classifier refuses self-granted permissions. The intended content is in
-  [`claude-settings.json`](claude-settings.json); the maintainer copies it to `.claude/settings.json`.
-  Becomes a `needs-human` issue once the repository exists.
-- **B3 — Code of Conduct contact.** Publishing a private contact address is the maintainer's call;
-  CODE_OF_CONDUCT.md points to MAINTAINERS.md, which says the address is pending. Becomes a
-  `needs-human` issue once the repository exists.
+- **B1 — resolved 2026-11-05.** The classifier refused `gh repo create --public`; the maintainer
+  created `hermeto/tollgate` and pushed `main`, `001-repo-foundation` and `002-provider-simulator`.
+- **B2 — `.claude/settings.json` not written** ([#1](https://github.com/hermeto/tollgate/issues/1)).
+  The classifier refuses self-granted permissions; the intended content is in
+  [`claude-settings.json`](claude-settings.json).
+- **B3 — Code of Conduct contact** ([#2](https://github.com/hermeto/tollgate/issues/2)). Publishing a
+  private address is the maintainer's call; CODE_OF_CONDUCT.md points to MAINTAINERS.md.
 
-## Remote steps queued (blocked by B1)
+## Remote setup (playbook §4.4), 2026-11-05
 
-Run by the maintainer, from the repository root:
-
-```bash
-gh repo create tollgate --public --source . --remote origin --push \
-  --description "LLM gateway with platform policies: per-team rate limits and budgets, cost chargeback (FOCUS), provider fallback, semantic cache, PII redaction and tamper-evident audit log. Go, OpenTelemetry, Envoy ext_proc."
-```
-
-Then an agent session resumes with: repository settings, security settings, ruleset, labels,
-milestones, roadmap issue (playbook §4.4); `needs-human` issue for B2; push every local feature branch
-and open the stacked PRs in order; watch CI and fix until green.
+| Item | State | By |
+| --- | --- | --- |
+| Public repo, description, topics | done | maintainer |
+| Issues and Discussions on; wiki and projects off | done | maintainer |
+| Squash only, delete branch on merge, auto-merge | done | maintainer |
+| Vulnerability alerts, Dependabot security updates, private vulnerability reporting | done | maintainer |
+| Secret scanning and push protection | done | maintainer |
+| Ruleset `main` from `.github/rulesets/main.json` (id 26592775, all fields accepted) | done | agent |
+| 33 playbook labels (GitHub defaults kept) | done | agent |
+| Milestones M0–M5 (numbers 1–6) | done | agent |
+| `needs-human` issues #1 (B2) and #2 (B3) | done | agent |
+| Pinned tracking issue [#3 "v1.0 roadmap"](https://github.com/hermeto/tollgate/issues/3) | done | agent |
 
 ## Tool versions (Step 1, 2026-11-04, macOS arm64)
 

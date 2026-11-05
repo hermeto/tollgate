@@ -2,7 +2,7 @@
 
 Open-source foundation for Tollgate: governance documents, issue and PR templates, repository settings
 as code, a pinned toolchain that works without Homebrew, and CI with one required status (`ci-gate`).
-Spec: [`specs/001-repo-foundation/spec.md`](../../../specs/001-repo-foundation/spec.md).
+Spec: [`specs/001-repo-foundation/spec.md`](https://github.com/hermeto/tollgate/blob/001-repo-foundation/specs/001-repo-foundation/spec.md). Tracking: #3.
 
 ## Stack
 
@@ -15,14 +15,16 @@ NFR-11 (Apache-2.0) from `docs/product/spec.md`.
 
 ## Decisions for the reviewer
 
-- `ci-gate` aggregates only `ci.yml` jobs; CodeQL and Scorecard report via code scanning. ([Clarifications](../../../specs/001-repo-foundation/spec.md#clarifications))
+- `ci-gate` aggregates only `ci.yml` jobs; CodeQL and Scorecard report via code scanning. ([Clarifications](https://github.com/hermeto/tollgate/blob/001-repo-foundation/specs/001-repo-foundation/spec.md#clarifications))
 - PR-only jobs (pr-title, dco, dependency-review) may be skipped on push to `main`; any other skip fails the gate.
 - Go dev tools are pinned in `tools/go.mod` and run with `go tool`; other linters are SHA-pinned pre-commit hooks. Setup needs git, Go, uv and jq only.
 - actionlint runs as its own pre-commit hook because it does not compile in the shared tools module.
 - Trivy runs from an image pinned by digest instead of `aquasecurity/trivy-action`.
 - release-please calls `release.yml` directly (tags made with `GITHUB_TOKEN` do not trigger workflows); images have no `latest` tag.
 - Security response targets: acknowledge 3 business days, triage 7 days, fix HIGH/CRITICAL within 90 days; only the latest minor and `main` are supported.
-- Code of Conduct contact: points to MAINTAINERS.md; the maintainer must publish a private address (needs-human issue).
+- Code of Conduct contact: points to MAINTAINERS.md; the maintainer must publish a private address (#2).
+- `.claude/settings.json` was not committed: the agent may not grant itself permissions; the content is in `docs/agent/claude-settings.json` (#1).
+- The `main` ruleset, labels and milestones were applied with the API from the versioned files in this PR.
 - ADR-0000 adopts MADR.
 
 ## How it was verified
@@ -35,8 +37,8 @@ NFR-11 (Apache-2.0) from `docs/product/spec.md`.
 
 ## Not verified
 
-- Remote runs (`gh pr checks`, Scorecard first run, dependency review, CodeQL, label sync, release-please): require the GitHub repository.
-- Keyless signing (`cosign` OIDC) runs only in GitHub Actions.
+- Scorecard, label sync and release-please run only on `main`; they are verified after this PR merges.
+- Keyless signing (`cosign` OIDC) and the release workflow run only on a version tag.
 
 ## Performance impact
 

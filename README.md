@@ -11,7 +11,7 @@ FOCUS export), fails over between providers, caches exact and semantically simil
 PII, and writes a tamper-evident audit log. A reproducible report measures what each policy costs in
 latency and saves in dollars.
 
-> 🚧 **Under construction.** See the "v1.0 roadmap" issue for progress and merge order, and
+> 🚧 **Under construction.** See the [v1.0 roadmap](https://github.com/hermeto/tollgate/issues/3) for progress and merge order, and
 > [`docs/product/spec.md`](docs/product/spec.md) for the product specification.
 
 ## Contributing
