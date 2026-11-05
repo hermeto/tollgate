@@ -25,7 +25,7 @@ func newAnthropic(t *testing.T, seed uint64) *httptest.Server {
 	return ts
 }
 
-const msgBody = `{"model":"claude-sonnet-4-5","max_tokens":256,"system":"Be brief.","messages":[{"role":"user","content":"Say hello."}]}`
+const msgBody = `{"model":"claude-sonnet-5-5","max_tokens":256,"system":"Be brief.","messages":[{"role":"user","content":"Say hello."}]}`
 
 // eventShapes maps "event/subtype" to the data shape of the first such event in a stream.
 func eventShapes(t *testing.T, frames []sseFrame) map[string]any {
@@ -90,7 +90,7 @@ func TestAnthropicToolUseMatchesFixtures(t *testing.T) {
 	ts := newAnthropic(t, 42)
 	tools := `"tools":[{"name":"get_weather","input_schema":{"type":"object"}}]`
 	for _, choice := range []string{`{"type":"any"}`, `{"type":"tool","name":"get_weather"}`} {
-		req := `{"model":"claude-sonnet-4-5","max_tokens":256,"messages":[{"role":"user","content":"Weather in Paris?"}],` + tools + `,"tool_choice":` + choice + `}`
+		req := `{"model":"claude-sonnet-5-5","max_tokens":256,"messages":[{"role":"user","content":"Weather in Paris?"}],` + tools + `,"tool_choice":` + choice + `}`
 		status, body := doReq(t, http.MethodPost, ts.URL+"/v1/messages", req, antAuth)
 		if status != http.StatusOK {
 			t.Fatalf("status %d: %s", status, body)
@@ -110,7 +110,7 @@ func TestAnthropicToolUseMatchesFixtures(t *testing.T) {
 			assertShapeSubset(t, key, want[key], g)
 		}
 	}
-	req := `{"model":"claude-sonnet-4-5","max_tokens":64,"messages":[{"role":"user","content":"hi"}],` + tools + `,"tool_choice":{"type":"auto"}}`
+	req := `{"model":"claude-sonnet-5-5","max_tokens":64,"messages":[{"role":"user","content":"hi"}],` + tools + `,"tool_choice":{"type":"auto"}}`
 	if _, body := doReq(t, http.MethodPost, ts.URL+"/v1/messages", req, antAuth); strings.Contains(string(body), "tool_use") {
 		t.Fatalf("auto tool_choice forced a tool: %s", body)
 	}
@@ -150,14 +150,14 @@ func TestAnthropicErrors(t *testing.T) {
 		t.Fatalf("missing key: %d", status)
 	}
 	assertShapeSubset(t, "error_401.json", jsonShape(t, fixture(t, "anthropic/error_401.json")), jsonShape(t, body))
-	status, body = doReq(t, http.MethodPost, ts.URL+"/v1/messages", strings.Replace(msgBody, "claude-sonnet-4-5", "claude-unknown", 1), antAuth)
+	status, body = doReq(t, http.MethodPost, ts.URL+"/v1/messages", strings.Replace(msgBody, "claude-sonnet-5-5", "claude-unknown", 1), antAuth)
 	if status != http.StatusNotFound {
 		t.Fatalf("unknown model: %d", status)
 	}
 	assertShapeSubset(t, "error_404.json", jsonShape(t, fixture(t, "anthropic/error_404.json")), jsonShape(t, body))
-	for _, bad := range []string{`{not json`, `{"model":"claude-sonnet-4-5","messages":[{"role":"user","content":"x"}]}`,
-		`{"model":"claude-sonnet-4-5","max_tokens":0,"messages":[{"role":"user","content":"x"}]}`,
-		`{"model":"claude-sonnet-4-5","max_tokens":5,"messages":[]}`} {
+	for _, bad := range []string{`{not json`, `{"model":"claude-sonnet-5-5","messages":[{"role":"user","content":"x"}]}`,
+		`{"model":"claude-sonnet-5-5","max_tokens":0,"messages":[{"role":"user","content":"x"}]}`,
+		`{"model":"claude-sonnet-5-5","max_tokens":5,"messages":[]}`} {
 		if status, body := doReq(t, http.MethodPost, ts.URL+"/v1/messages", bad, antAuth); status != http.StatusBadRequest || !strings.Contains(string(body), "invalid_request_error") {
 			t.Errorf("%s: %d %s", bad, status, body)
 		}
@@ -166,7 +166,7 @@ func TestAnthropicErrors(t *testing.T) {
 
 func TestAnthropicContentBlocksCount(t *testing.T) {
 	ts := newAnthropic(t, 42)
-	req := `{"model":"claude-sonnet-4-5","max_tokens":16,"system":[{"type":"text","text":"Be brief."}],` +
+	req := `{"model":"claude-sonnet-5-5","max_tokens":16,"system":[{"type":"text","text":"Be brief."}],` +
 		`"messages":[{"role":"user","content":[{"type":"text","text":"Say hello."}]}]}`
 	_, body := doReq(t, http.MethodPost, ts.URL+"/v1/messages", req, antAuth)
 	_, plain := doReq(t, http.MethodPost, ts.URL+"/v1/messages", strings.Replace(msgBody, `"max_tokens":256`, `"max_tokens":16`, 1), antAuth)

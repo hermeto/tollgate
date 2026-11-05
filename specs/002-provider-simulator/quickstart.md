@@ -9,7 +9,7 @@ curl -s localhost:9001/v1/chat/completions -H 'authorization: Bearer tg-example-
 curl -sN localhost:9001/v1/chat/completions -H 'authorization: Bearer tg-example-key' \
   -d '{"model":"gpt-4o-mini","stream":true,"stream_options":{"include_usage":true},"messages":[{"role":"user","content":"hi"}]}'
 curl -sN localhost:9002/v1/messages -H 'x-api-key: tg-example-key' -H 'anthropic-version: 2023-06-01' \
-  -d '{"model":"claude-sonnet-4-5","max_tokens":64,"stream":true,"messages":[{"role":"user","content":"hi"}]}'
+  -d '{"model":"claude-sonnet-5-5","max_tokens":64,"stream":true,"messages":[{"role":"user","content":"hi"}]}'
 
 # Faults, live
 curl -s -X PUT localhost:9001/_sim/faults -d '{"error_rates":{"429":1},"retry_after_seconds":2}'
