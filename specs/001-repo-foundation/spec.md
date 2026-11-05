@@ -216,10 +216,10 @@ definition has a weekly schedule and a default-branch push trigger.
   (verified for failure and skip).
 - **SC-004**: The OpenSSF Scorecard workflow runs on schedule and on default-branch pushes; its first
   run completes successfully after the repository is published.
-- **SC-006**: On a pull request, `ci-gate` reports a result within 15 minutes of the push for a change
-  that touches only documentation or the placeholder binary.
 - **SC-005**: Every file listed in FR-001 to FR-004 and FR-012 is reachable from the README or the
   contribution guide in at most one click.
+- **SC-006**: On a pull request, `ci-gate` reports a result within 15 minutes of the push for a change
+  that touches only documentation or the placeholder binary.
 
 ## Assumptions
 
