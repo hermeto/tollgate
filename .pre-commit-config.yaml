@@ -14,6 +14,8 @@ repos:
         exclude: ^deploy/helm/.*/templates/
       - id: detect-private-key
       - id: end-of-file-fixer
+        # SSE fixtures end with a blank line: it dispatches the final event (WHATWG SSE spec).
+        exclude: ^testdata/wire/.*\.sse$
       - id: mixed-line-ending
         args: [--fix=lf]
       - id: trailing-whitespace
