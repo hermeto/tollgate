@@ -30,7 +30,7 @@ implementation inside each story.
 - [ ] T006 [P] Implement sim/rng.go: content RNG = PCG(seed, fnv64(body)); latency RNG seeded with seed, body hash and occurrence count (FR-019); tests for determinism and independence
 - [ ] T007 [P] Implement sim/sse.go (event/data framing, flush after each event) with tests
 - [ ] T008 Implement sim/server.go: flavour routing, auth-header check (FR-016), `/_sim/healthz`, graceful shutdown with 5 s grace (FR-020), bind 127.0.0.1 by default (FR-018); tests in sim/server_test.go
-- [ ] T009 Add `tollgate sim` subcommand in cmd/tollgate/sim.go (flags per contracts/cli.md)
+- [ ] T009 Add `tollgate sim` subcommand in cmd/tollgate/sim.go (flags per contracts/cli.md; `--log-requests` logs method, path, status and duration only — never bodies or auth headers, FR-010)
 
 ## Phase 3: User Story 5 — Documented token counting (P1)
 
@@ -41,7 +41,7 @@ implementation inside each story.
 ## Phase 4: User Story 1 — OpenAI flavour (P1)
 
 - [ ] T013 [P] [US1] Record fixtures in testdata/wire/openai/ (chat completion, stream with usage, tool call, embeddings float and base64, models, errors) with testdata/wire/README.md citing sources (research R1, R2)
-- [ ] T014 [P] [US1] Fixture structure tests in sim/openai_test.go (same keys, same chunk order; ids and timestamps ignored)
+- [ ] T014 [P] [US1] Fixture structure tests in sim/openai_test.go (same keys, same chunk order; ids and timestamps ignored) and a replay test proving byte-identical bodies for the same seed and request sequence (SC-004)
 - [ ] T015 [US1] Implement chat completions non-streaming and streaming with `include_usage`, `max_tokens`/`max_completion_tokens` → `length`, `n > 1` → 400, forced tool calls (FR-017) in sim/openai.go
 - [ ] T016 [US1] Implement `/v1/embeddings` (deterministic unit vectors, float and base64, `dimensions`) and `/v1/models` in sim/openai.go
 - [ ] T017 [US1] Implement OpenAI error bodies (400, 401, 404 model_not_found, 429, 500, 503) in sim/openai.go
@@ -49,7 +49,7 @@ implementation inside each story.
 ## Phase 5: User Story 2 — Anthropic flavour (P1)
 
 - [ ] T018 [P] [US2] Copy fixtures from anthropic-sdk-python v2.5.0 (basic, tool use) and add non-streaming and error fixtures in testdata/wire/anthropic/ with sources
-- [ ] T019 [P] [US2] Fixture structure and event-order tests in sim/anthropic_test.go
+- [ ] T019 [P] [US2] Fixture structure, event-order and replay-determinism tests in sim/anthropic_test.go
 - [ ] T020 [US2] Implement `/v1/messages` non-streaming and streaming event sequence, `max_tokens` required, `max_tokens` stop reason, forced tool use, error bodies (incl. 529) in sim/anthropic.go
 
 ## Phase 6: User Story 3 — Latency model (P1)
