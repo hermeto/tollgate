@@ -45,11 +45,11 @@ func (s *Server) handleOpenAIEmbeddings(w http.ResponseWriter, r *http.Request) 
 	}
 	dims := s.cfg.Embeddings.Dimensions
 	if req.Dimensions != nil {
-		if *req.Dimensions < 1 || *req.Dimensions > 8192 {
-			s.writeError(w, http.StatusBadRequest, errInvalidRequest, "dimensions must be between 1 and 8192")
-			return
-		}
 		dims = *req.Dimensions
+	}
+	if dims < 1 || dims > maxEmbeddingDimensions {
+		s.writeError(w, http.StatusBadRequest, errInvalidRequest, fmt.Sprintf("dimensions must be between 1 and %d", maxEmbeddingDimensions))
+		return
 	}
 	if req.EncodingFormat != "" && req.EncodingFormat != "float" && req.EncodingFormat != "base64" {
 		s.writeError(w, http.StatusBadRequest, errInvalidRequest, "encoding_format must be float or base64")
@@ -104,8 +104,14 @@ func embeddingInputs(raw json.RawMessage) ([]string, error) {
 	return nil, fmt.Errorf("'input' must be a string, an array of strings or token arrays")
 }
 
+// maxEmbeddingDimensions bounds vector size (and the allocation per input).
+const maxEmbeddingDimensions = 8192
+
 // embed returns a deterministic unit vector for (seed, model, input).
 func (s *Server) embed(model, input string, dims int) []float32 {
+	if dims < 1 || dims > maxEmbeddingDimensions {
+		dims = s.cfg.Embeddings.Dimensions
+	}
 	rng := s.seeds.content(requestHash("embedding:"+model, []byte(input)))
 	vec := make([]float32, dims)
 	var norm float64

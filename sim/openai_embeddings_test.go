@@ -89,3 +89,11 @@ func TestOpenAIModels(t *testing.T) {
 	}
 	assertSameShape(t, "error_404_model.json", jsonShape(t, fixture(t, "openai/error_404_model.json")), jsonShape(t, body))
 }
+
+func TestOpenAIEmbeddingsRejectOversizedDimensions(t *testing.T) {
+	ts := newOpenAI(t, 42)
+	req := `{"model":"text-embedding-3-small","input":"x","dimensions":1000000000}`
+	if status, _ := doReq(t, http.MethodPost, ts.URL+"/v1/embeddings", req, oaiAuth); status != http.StatusBadRequest {
+		t.Fatalf("status %d, want 400", status)
+	}
+}
