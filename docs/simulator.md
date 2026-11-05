@@ -39,6 +39,11 @@ error body.
 | POST | `/v1/embeddings` | Deterministic unit vectors (default 1536 dimensions, `dimensions` overrides) for a string, an array of strings or token arrays; `encoding_format` `float` or `base64` (little-endian float32, the SDKs' default). |
 | GET | `/v1/models`, `/v1/models/{model}` | Configured models. |
 
+With `embeddings.forward_url` set (the full URL of an OpenAI-compatible embeddings endpoint, for example
+a local text-embeddings-inference container in feature 013), `/v1/embeddings` is forwarded unchanged and
+the target's answer is returned; if the target fails or is unreachable the simulator answers 502 and
+never falls back to synthetic vectors. This is the simulator's only outbound call.
+
 Errors use the OpenAI body `{"error":{"message","type","param","code"}}`: 400 for malformed requests,
 401 `invalid_api_key` without a Bearer token, 404 `model_not_found` for unknown models, 413 for bodies
 over 32 MiB. Every response carries `x-request-id`. Shapes are checked against the fixtures in
@@ -104,6 +109,20 @@ The request log lets end-to-end tests assert what the gateway actually sent upst
 PII was redacted or that client headers were stripped. It keeps headers verbatim, so it must only ever
 see fake keys; the simulator's own logs never contain bodies or header values. Admin calls are not
 recorded.
+
+## SDK compatibility
+
+`make sdk-compat` starts both flavours and runs the official SDKs, changing only the base URL:
+
+| Language | OpenAI SDK | Anthropic SDK | Client |
+| --- | --- | --- | --- |
+| Python (uv, `test/sdk/python/uv.lock`) | `openai` 3.46.0 | `anthropic` 2.5.0 | `test/sdk/python/compat.py` |
+| TypeScript (npm, `test/sdk/node/package-lock.json`) | `openai` 7.51.0 | `@anthropic-ai/sdk` 1.5.0 | `test/sdk/node/compat.mjs` |
+| Go (`test/sdk/go/go.mod`) | `openai-go/v3` v3.95.0 | `anthropic-sdk-go/v2` v2.6.0 | `test/sdk/go/main.go` |
+
+Each client checks chat (JSON and streaming with usage), a forced tool call (Python, TypeScript),
+embeddings and the model list for OpenAI, and messages (JSON and streaming) for Anthropic. The suite
+runs in CI as the `sdk-compat` job, aggregated by `ci-gate`. `TARGET=gateway` arrives with feature 004.
 
 ## Configuration
 

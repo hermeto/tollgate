@@ -69,20 +69,20 @@ implementation inside each story.
 
 ## Phase 9: User Story 7 — Embeddings forward (P2)
 
-- [ ] T027 [US7] Implement `embeddings.forward_url` proxy with 502 on upstream failure; tests with an httptest upstream in sim/openai_test.go
+- [x] T027 [US7] Implement `embeddings.forward_url` proxy with 502 on upstream failure; tests with an httptest upstream in sim/openai_test.go
 
 ## Phase 10: SDK compatibility (FR-013, SC-001)
 
-- [ ] T028 [P] Python clients (openai 3.46.0, anthropic 2.5.0) in test/sdk/python/ with pyproject.toml and uv.lock
-- [ ] T029 [P] TypeScript clients (openai 7.51.0, @anthropic-ai/sdk 1.5.0) in test/sdk/node/ with package-lock.json
-- [ ] T030 [P] Go clients (openai-go v3.95.0, anthropic-sdk-go v2.6.0) in test/sdk/go/ (own go.mod)
-- [ ] T031 Implement scripts/sdk-compat.sh and `make sdk-compat`; add `sdk-compat` job to .github/workflows/ci.yml aggregated by ci-gate (update internal/repotest expectations)
+- [x] T028 [P] Python clients (openai 3.46.0, anthropic 2.5.0) in test/sdk/python/ with pyproject.toml and uv.lock
+- [x] T029 [P] TypeScript clients (openai 7.51.0, @anthropic-ai/sdk 1.5.0) in test/sdk/node/ with package-lock.json
+- [x] T030 [P] Go clients (openai-go v3.95.0, anthropic-sdk-go v2.6.0) in test/sdk/go/ (own go.mod)
+- [x] T031 Implement scripts/sdk-compat.sh and `make sdk-compat`; add `sdk-compat` job to .github/workflows/ci.yml aggregated by ci-gate (update internal/repotest expectations)
 
 ## Phase 11: Polish & cross-cutting
 
-- [ ] T032 Throughput benchmark (SC-003) in sim/bench_test.go and TTFT accuracy test under 1,000 concurrent streams (SC-007)
-- [ ] T033 Token error measurement script test/sdk/python/token_error.py with corpus testdata/tokens/corpus.jsonl (SC-006)
-- [ ] T034 [P] Write docs/simulator.md (usage, config, faults, token method, measured throughput, TTFT accuracy, token error with hardware) and link it from README
+- [ ] T032 Throughput benchmark (SC-003) in sim/bench_test.go and TTFT accuracy measurement under 1,000 concurrent streams (SC-007, restated; bench/k6/sim-ttft.js)
+- [ ] T033 Token error measurement with corpus testdata/tokens/corpus.jsonl (SC-006) — delivered in slice 3 as scripts/tokens/reference.py (tiktoken reference counts) plus the offline golden test TestErrorAgainstReference
+- [x] T034 [P] Write docs/simulator.md (usage, config, faults, token method, measured throughput, TTFT accuracy, token error with hardware) and link it from README
 - [ ] T035 [P] Write docs/adr/0009-simulated-providers-default-upstream.md
 - [ ] T036 Run `go test ./sim/... ./internal/tokens/... -race -cover`, `make sdk-compat`, the benchmark and `make lint`; update docs/agent/PROGRESS.md
 
@@ -100,8 +100,8 @@ T013 fixtures   T014 fixture tests   # in parallel, then T015–T017 sequentiall
 
 ## PR slices (stacked, each < 800 changed lines excluding fixtures, lockfiles and Spec Kit artifacts)
 
-Re-sliced during implementation: the first estimate (5 slices) put about 2,000 lines in slice 1, and the
-OpenAI flavour alone came to about 950.
+Re-sliced during implementation: the first estimate (5 slices) put about 2,000 lines in slice 1, the
+OpenAI flavour alone came to about 950, and the last slice to about 930.
 
 | PR | Branch | Tasks |
 | --- | --- | --- |
@@ -112,7 +112,8 @@ OpenAI flavour alone came to about 950.
 | 5 | `002-provider-simulator-iter4` | T016, T025–T026 (US1 embeddings and models, US6 request log) |
 | 6 | `002-provider-simulator-iter5` | T018–T020 (US2 Anthropic) |
 | 7 | `002-provider-simulator-iter6` | T021–T024 (US3 latency, US4 faults) |
-| 8 | `002-provider-simulator-iter7` | T027–T036 (US7, SDK compatibility, polish) |
+| 8 | `002-provider-simulator-iter7` | T027–T031, T034 (US7 embeddings forward, SDK compatibility) |
+| 9 | `002-provider-simulator-iter8` | T032, T033, T035, T036 (performance, ADR-0009, verification) |
 
 Feature 003 branches from the last slice.
 

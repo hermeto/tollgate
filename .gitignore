@@ -35,3 +35,6 @@ __pycache__/
 
 # Benchmark raw outputs
 bench/results/**/raw/
+
+# Node (SDK compatibility clients)
+node_modules/

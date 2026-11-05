@@ -6,7 +6,7 @@ import (
 )
 
 func TestCIGate(t *testing.T) {
-	allSuccess := `{"lint":{"result":"success"},"test":{"result":"success"},"security":{"result":"success"},` +
+	allSuccess := `{"lint":{"result":"success"},"test":{"result":"success"},"security":{"result":"success"},"sdk-compat":{"result":"success"},` +
 		`"pr-title":{"result":"success"},"dco":{"result":"success"},"dependency-review":{"result":"success"}}`
 	cases := []struct {
 		name     string
