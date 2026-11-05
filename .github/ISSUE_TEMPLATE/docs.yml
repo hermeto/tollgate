@@ -1,0 +1,27 @@
+name: Documentation
+description: Something in the docs is missing, wrong or unclear.
+labels: ["kind/docs", "area/docs"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Privacy:** do not paste real prompts, responses, API keys, virtual keys or personal data.
+        Use synthetic examples. Security vulnerabilities go to
+        [private reporting](https://github.com/hermeto/tollgate/security/advisories/new), not here.
+  - type: input
+    id: page
+    attributes:
+      label: Page or file
+      description: URL or path of the document.
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested change

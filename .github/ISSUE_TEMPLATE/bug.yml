@@ -1,0 +1,45 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["kind/bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Privacy:** do not paste real prompts, responses, API keys, virtual keys or personal data.
+        Use synthetic examples. Security vulnerabilities go to
+        [private reporting](https://github.com/hermeto/tollgate/security/advisories/new), not here.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal commands or config, using the simulator where possible.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `tollgate version`, or the commit SHA.
+    validations:
+      required: true
+  - type: dropdown
+    id: profile
+    attributes:
+      label: Profile
+      options: [local (Docker Compose), envoy (kind), k8s (Helm), other]
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Redact anything sensitive. Tollgate never logs prompt content by default.
+      render: text
