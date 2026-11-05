@@ -17,9 +17,27 @@ None yet.
 
 ## Blockers
 
-- `.claude/settings.json` (playbook §4.5) was not written: the agent's permission classifier refuses
-  self-granted permissions. The intended content is in [`claude-settings.json`](claude-settings.json);
-  the maintainer must copy it to `.claude/settings.json`. Tracked in a `needs-human` issue.
+- **B1 — GitHub repository not created.** `gh repo create tollgate --public …` (playbook §4.4) was
+  refused by the agent's permission classifier ("Create Public Surface"). The agent did not work around
+  it (no private repo, no other host). Everything in §4.4 and every push/PR step is queued below. The
+  maintainer creates the repository (command in "Remote steps queued"), then a session resumes.
+- **B2 — `.claude/settings.json` not written.** Playbook §4.5 asks the agent to write its own
+  permission file; the classifier refuses self-granted permissions. The intended content is in
+  [`claude-settings.json`](claude-settings.json); the maintainer copies it to `.claude/settings.json`.
+  Becomes a `needs-human` issue once the repository exists.
+
+## Remote steps queued (blocked by B1)
+
+Run by the maintainer, from the repository root:
+
+```bash
+gh repo create tollgate --public --source . --remote origin --push \
+  --description "LLM gateway with platform policies: per-team rate limits and budgets, cost chargeback (FOCUS), provider fallback, semantic cache, PII redaction and tamper-evident audit log. Go, OpenTelemetry, Envoy ext_proc."
+```
+
+Then an agent session resumes with: repository settings, security settings, ruleset, labels,
+milestones, roadmap issue (playbook §4.4); `needs-human` issue for B2; push every local feature branch
+and open the stacked PRs in order; watch CI and fix until green.
 
 ## Tool versions (Step 1, 2026-11-04, macOS arm64)
 
