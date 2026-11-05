@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 6 of 8 of the provider simulator: the Anthropic flavour, `POST /v1/messages`, non-streaming and
+Slice 6 of 9 of the provider simulator: the Anthropic flavour, `POST /v1/messages`, non-streaming and
 streaming with the official event sequence, `max_tokens` required and enforced (`stop_reason:
 "max_tokens"`), forced tool use, and Anthropic error bodies. Adds the Anthropic fixtures (two copied
 from the Anthropic Python SDK test suite, attributed in `NOTICE`).

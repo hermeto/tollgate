@@ -6,23 +6,25 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 002 provider-simulator — slice 1 of 7 (`002-provider-simulator`) |
-| Spec Kit phase | implement |
-| Last commit | `feat(simulator): add simulator configuration and JSON Schema` on `002-provider-simulator` |
-| Next step | CI on PR #5; then slice 2 (`002-provider-simulator-iter1`) from the local backup branch `tmp-002-impl` |
+| Current feature | 002 provider-simulator — all 9 slices implemented; converge clean |
+| Spec Kit phase | 002 done (step 12 pending CI on the last PRs); next 003 local-stack |
+| Last commit | `docs(agent): record 002 completion` on `002-provider-simulator-iter8` |
+| Next step | feature 003 from `002-provider-simulator-iter8` |
 
 ## Features (merge order)
 
 | # | Branch | Local status | PR | PR body draft |
 | --- | --- | --- | --- | --- |
 | 001 | `001-repo-foundation` | done; CI green | [#4](https://github.com/hermeto/tollgate/pull/4) ready | [pr-bodies/001-repo-foundation.md](pr-bodies/001-repo-foundation.md) |
-| 002 (1/7) | `002-provider-simulator` | CLI, schema, config | [#5](https://github.com/hermeto/tollgate/pull/5) | [pr-bodies/002-provider-simulator.md](pr-bodies/002-provider-simulator.md) |
-| 002 (2/7) | `002-provider-simulator-iter1` | server skeleton (code on `tmp-002-impl`) | — | — |
-| 002 (3/7) | `002-provider-simulator-iter2` | tokens, generator (code on `tmp-002-impl`) | — | — |
-| 002 (4/7) | `002-provider-simulator-iter3` | pending: OpenAI flavour | — | — |
-| 002 (5/7) | `002-provider-simulator-iter4` | pending: Anthropic, request log | — | — |
-| 002 (6/7) | `002-provider-simulator-iter5` | pending: latency, faults | — | — |
-| 002 (7/7) | `002-provider-simulator-iter6` | pending: SDK compat, polish | — | — |
+| 002 (1/9) | `002-provider-simulator` | CLI, schema, config | [#5](https://github.com/hermeto/tollgate/pull/5) ready | [pr-bodies/002-provider-simulator.md](pr-bodies/002-provider-simulator.md) |
+| 002 (2/9) | `002-provider-simulator-iter1` | server skeleton | [#6](https://github.com/hermeto/tollgate/pull/6) ready | [iter1](pr-bodies/002-provider-simulator-iter1.md) |
+| 002 (3/9) | `002-provider-simulator-iter2` | tokens, generator | [#7](https://github.com/hermeto/tollgate/pull/7) ready | [iter2](pr-bodies/002-provider-simulator-iter2.md) |
+| 002 (4/9) | `002-provider-simulator-iter3` | OpenAI chat | [#8](https://github.com/hermeto/tollgate/pull/8) ready | [iter3](pr-bodies/002-provider-simulator-iter3.md) |
+| 002 (5/9) | `002-provider-simulator-iter4` | embeddings, models, request log | [#9](https://github.com/hermeto/tollgate/pull/9) ready | [iter4](pr-bodies/002-provider-simulator-iter4.md) |
+| 002 (6/9) | `002-provider-simulator-iter5` | Anthropic | [#10](https://github.com/hermeto/tollgate/pull/10) ready | [iter5](pr-bodies/002-provider-simulator-iter5.md) |
+| 002 (7/9) | `002-provider-simulator-iter6` | latency, faults | [#11](https://github.com/hermeto/tollgate/pull/11) ready | [iter6](pr-bodies/002-provider-simulator-iter6.md) |
+| 002 (8/9) | `002-provider-simulator-iter7` | SDK compat, embeddings forward | [#13](https://github.com/hermeto/tollgate/pull/13) | [iter7](pr-bodies/002-provider-simulator-iter7.md) |
+| 002 (9/9) | `002-provider-simulator-iter8` | pacing deadlines, perf, ADR-0009 | pending | [iter8](pr-bodies/002-provider-simulator-iter8.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
@@ -35,6 +37,8 @@ branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001),
 - **B2 — `.claude/settings.json` not written** ([#1](https://github.com/hermeto/tollgate/issues/1)).
   The classifier refuses self-granted permissions; the intended content is in
   [`claude-settings.json`](claude-settings.json).
+- **B4 — SC-007 TTFT tail** ([#12](https://github.com/hermeto/tollgate/issues/12)). p99 +23.5 ms at 1,000
+  streams with a co-located load generator; criterion restated (median ≤ +5 ms); maintainer decides.
 - **B3 — Code of Conduct contact** ([#2](https://github.com/hermeto/tollgate/issues/2)). Publishing a
   private address is the maintainer's call; CODE_OF_CONDUCT.md points to MAINTAINERS.md.
 
@@ -107,4 +111,9 @@ Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) a
 
 - 001 SC-001: fresh clone `make dev-setup && make lint test` → exit 0 in 7.4 s (warm Go and pre-commit caches, M-series Mac).
 - 002 tokens: o200k_base mean absolute error 7.4% (holdout 5.8%), bias +2.2%; 4.2 µs per 4 KB.
+- 002 SC-001: `make sdk-compat` 6/6 clients (Python, TypeScript, Go × OpenAI, Anthropic).
+- 002 SC-003: k6 10,000 req/s sustained, 0 errors; 30,000 req/s probed (p95 106 µs).
+- 002 SC-007: TTFT fixed 100 ms at 1,000 streams: median +3.4 ms, p90 +13.6 ms, p99 +23.5 ms (Go client).
+- 002 note: the agent's own `git checkout <file>` during a debug cleanup discarded an uncommitted change
+  once (re-applied immediately); keep debug instrumentation in scratch copies, never in tracked files.
 - 001 SC-003/SC-006: PR #4 first run — every check green; `ci-gate` reported ~2.5 min after the push (lint 1m56s is the longest job).

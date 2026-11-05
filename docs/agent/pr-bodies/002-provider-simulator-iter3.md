@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 4 of 8 of the provider simulator: OpenAI-compatible `POST /v1/chat/completions`, non-streaming and
+Slice 4 of 9 of the provider simulator: OpenAI-compatible `POST /v1/chat/completions`, non-streaming and
 streaming, with `stream_options.include_usage`, max-token truncation (`finish_reason: "length"`) and
 forced tool calls. Adds the OpenAI wire fixtures (`testdata/wire/openai/`, sources in its README) and
 structural contract tests against them.

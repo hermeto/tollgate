@@ -1,6 +1,6 @@
 ## Summary
 
-Slice 3 of 8 of the provider simulator: the documented token-counting approximation (`internal/tokens`,
+Slice 3 of 9 of the provider simulator: the documented token-counting approximation (`internal/tokens`,
 shared with the gateway's estimator in 006/007) and the deterministic text generator with fixed, normal
 and lognormal distributions.
 Spec: [`specs/002-provider-simulator/spec.md`](https://github.com/hermeto/tollgate/blob/002-provider-simulator-iter2/specs/002-provider-simulator/spec.md) (US5). Method and measurements: `docs/simulator.md` "Token counting". Tracking: #3.
