@@ -1,0 +1,20 @@
+# yamllint configuration (run through pre-commit with --strict).
+extends: default
+
+ignore: |
+  .specify/
+  .claude/
+  deploy/helm/*/templates/
+
+rules:
+  document-start: disable
+  line-length:
+    max: 160
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false # GitHub Actions uses the `on:` key
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: consistent

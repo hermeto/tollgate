@@ -1,0 +1,68 @@
+# GoReleaser v2 configuration. Runs only on version tags (see .github/workflows/release.yml).
+# Local check: goreleaser check && goreleaser release --snapshot --clean
+version: 2
+project_name: tollgate
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: tollgate
+    main: ./cmd/tollgate
+    binary: tollgate
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/hermeto/tollgate/internal/version.Version={{ .Version }}
+      - -X github.com/hermeto/tollgate/internal/version.Commit={{ .FullCommit }}
+      - -X github.com/hermeto/tollgate/internal/version.Date={{ .CommitDate }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files: [LICENSE, NOTICE, README.md]
+
+checksum:
+  name_template: checksums.txt
+
+# SBOMs (SPDX JSON) for every archive, generated with syft.
+sboms:
+  - artifacts: archive
+
+# Keyless signing (Sigstore OIDC) of the checksum file; the bundle verifies every archive.
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args: ["sign-blob", "--bundle=${signature}", "${artifact}", "--yes"]
+
+dockers_v2:
+  - id: tollgate
+    images: ["ghcr.io/hermeto/tollgate"]
+    # No mutable `latest` tag: consumers pin a version or a digest.
+    tags: ["{{ .Version }}", "{{ if not .Prerelease }}{{ .Major }}.{{ .Minor }}{{ end }}"]
+    platforms: [linux/amd64, linux/arm64]
+    dockerfile: Dockerfile
+    sbom: "true"
+    labels:
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.source: "https://github.com/hermeto/tollgate"
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.licenses: Apache-2.0
+
+docker_signs:
+  - cmd: cosign
+    args: ["sign", "${artifact}@${digest}", "--yes"]
+
+changelog:
+  disable: true # release-please owns CHANGELOG.md
+
+release:
+  prerelease: auto

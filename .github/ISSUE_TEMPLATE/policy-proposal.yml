@@ -1,0 +1,39 @@
+name: Policy proposal
+description: Propose a new policy type or a change to policy semantics (rate limits, budgets, PII, cache, routing, audit).
+labels: ["kind/feature", "area/policy"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Privacy:** do not paste real prompts, responses, API keys, virtual keys or personal data.
+        Use synthetic examples. Security vulnerabilities go to
+        [private reporting](https://github.com/hermeto/tollgate/security/advisories/new), not here.
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk or cost being governed
+      description: What goes wrong today without this policy? Who is affected?
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Example policy YAML
+      description: How a platform team would express it in policies/.
+      render: yaml
+    validations:
+      required: true
+  - type: dropdown
+    id: failmode
+    attributes:
+      label: Default fail mode when a dependency is down
+      options: [fail-open, fail-closed, not applicable]
+    validations:
+      required: true
+  - type: textarea
+    id: measure
+    attributes:
+      label: How to measure it
+      description: Expected overhead (p99) and the effect (dollars, availability, risk) the report should show.
+    validations:
+      required: true

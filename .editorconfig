@@ -20,3 +20,5 @@ indent_size = 4
 
 [*.md]
 trim_trailing_whitespace = false
+# List continuation lines align with the list marker text, not a fixed width.
+indent_size = unset

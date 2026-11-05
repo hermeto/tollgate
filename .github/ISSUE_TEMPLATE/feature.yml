@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a new capability or an improvement.
+labels: ["kind/feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Privacy:** do not paste real prompts, responses, API keys, virtual keys or personal data.
+        Use synthetic examples. Security vulnerabilities go to
+        [private reporting](https://github.com/hermeto/tollgate/security/advisories/new), not here.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who needs this and why? What do they do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should Tollgate do? Include the measurable outcome you expect.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Expected cost
+      description: Hot-path latency, operational burden or new dependencies this adds, if known.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
