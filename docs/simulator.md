@@ -5,7 +5,8 @@ deterministic test double that speaks the OpenAI or Anthropic wire protocol. The
 outbound calls (the optional embeddings forward URL is the only exception) and must not be exposed
 outside a test or demo network: its admin endpoints are unauthenticated.
 
-Specification: [`specs/002-provider-simulator/`](../specs/002-provider-simulator/spec.md).
+Design decision: [ADR-0009](adr/0009-simulated-providers-default-upstream.md). Specification:
+[`specs/002-provider-simulator/`](../specs/002-provider-simulator/spec.md).
 
 ## Running it
 
@@ -35,7 +36,7 @@ error body.
 
 | Method | Path | Behaviour |
 | --- | --- | --- |
-| POST | `/v1/chat/completions` | JSON or SSE (`stream: true`); `stream_options.include_usage` adds `"usage": null` to every chunk and a final chunk with `choices: []` and usage, before `data: [DONE]`. `max_completion_tokens` (or `max_tokens`) cuts the output with `finish_reason: "length"`. A forced tool (`tool_choice: "required"` or naming a function) returns one call with arguments `{}` and `finish_reason: "tool_calls"`. `n > 1` returns 400. |
+| POST | `/v1/chat/completions` | JSON or SSE (`stream: true`); `stream_options.include_usage` adds `"usage": null` to every chunk and a final chunk with `choices: []` and usage, before `data: [DONE]`. `max_completion_tokens` (or `max_tokens`) cuts the output with `finish_reason: "length"`. A forced tool (`tool_choice: "required"` or naming a function) returns one call with arguments `{}` and `finish_reason: "tool_calls"`. `n > 1` returns 400. `stop` sequences are accepted and ignored: generated text never contains them. |
 | POST | `/v1/embeddings` | Deterministic unit vectors (default 1536 dimensions, `dimensions` overrides) for a string, an array of strings or token arrays; `encoding_format` `float` or `base64` (little-endian float32, the SDKs' default). |
 | GET | `/v1/models`, `/v1/models/{model}` | Configured models. |
 
@@ -53,7 +54,7 @@ over 32 MiB. Every response carries `x-request-id`. Shapes are checked against t
 
 | Method | Path | Behaviour |
 | --- | --- | --- |
-| POST | `/v1/messages` | JSON or SSE (`stream: true`) with the official event order: `message_start`, `content_block_start`, `ping`, `content_block_delta`…, `content_block_stop`, `message_delta` (stop reason and output usage), `message_stop`. `max_tokens` is required, as in the real API; reaching it gives `stop_reason: "max_tokens"`. A forced tool (`tool_choice` of type `tool` or `any`) returns one `tool_use` block with input `{}` streamed as `input_json_delta`, and `stop_reason: "tool_use"`. |
+| POST | `/v1/messages` | JSON or SSE (`stream: true`) with the official event order: `message_start`, `content_block_start`, `ping`, `content_block_delta`…, `content_block_stop`, `message_delta` (stop reason and output usage), `message_stop`. `max_tokens` is required, as in the real API; reaching it gives `stop_reason: "max_tokens"`. `stop_sequences` are accepted and ignored. A forced tool (`tool_choice` of type `tool` or `any`) returns one `tool_use` block with input `{}` streamed as `input_json_delta`, and `stop_reason: "tool_use"`. |
 
 `system` and message `content` may be strings or arrays of blocks; text, tool inputs and tool results
 count towards `input_tokens`. Usage reports `cache_creation_input_tokens` and `cache_read_input_tokens`
@@ -123,6 +124,27 @@ recorded.
 Each client checks chat (JSON and streaming with usage), a forced tool call (Python, TypeScript),
 embeddings and the model list for OpenAI, and messages (JSON and streaming) for Anthropic. The suite
 runs in CI as the `sdk-compat` job, aggregated by `ci-gate`. `TARGET=gateway` arrives with feature 004.
+
+## Performance
+
+Measured on 2026-11-05, Apple M4 (10 cores, 24 GiB), macOS, Go 1.27.3, k6 2.3.0, with the load
+generator on the same machine. Scripts: [`bench/k6/sim-throughput.js`](../bench/k6/sim-throughput.js) and
+[`bench/k6/sim-ttft.js`](../bench/k6/sim-ttft.js) with [`sim-ttft.yaml`](../bench/k6/sim-ttft.yaml).
+
+| Measurement | Result |
+| --- | --- |
+| Non-streaming chat, zero latency, open-loop 10,000 req/s for 20 s (k6) | 10,000 req/s sustained, 0 errors, 0 dropped; median 39 µs, p95 46 µs; simulator ≈ 0.3 cores |
+| Same at 30,000 req/s | sustained (6 of 600,000 iterations dropped), p95 106 µs |
+| In-process benchmark `BenchmarkOpenAIChatNonStreaming` (client and server share the CPU) | ≈ 94,000 req/s |
+| TTFT accuracy, fixed 100 ms, 100 streams (Go client) | median +2.5 ms, p90 +6.2 ms, p99 +10.2 ms |
+| TTFT accuracy, fixed 100 ms, 1,000 streams (Go client, ≈ 7,600 req/s) | median +3.4 ms, p90 +13.6 ms, p99 +23.5 ms |
+| Same with k6 | median +3.8 ms, p90 +14.8 ms, p99 +27.3 ms |
+
+The simulator is never the throughput bottleneck. Its time-to-first-token tail under heavy concurrency
+is a few milliseconds at the median but tens of milliseconds at p99 with a co-located load generator
+(GC, CPU saturation, macOS timers and the load generator were ruled out; see
+[#12](https://github.com/hermeto/tollgate/issues/12)). Gateway overhead must therefore be measured
+inside the gateway (per-Stage timing) rather than as a difference of client-side p99s.
 
 ## Configuration
 
