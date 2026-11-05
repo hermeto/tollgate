@@ -1,0 +1,48 @@
+{"id": "en-short", "text": "Hello, how are you today?"}
+{"id": "en-question", "text": "What is the capital of Canada, and why was it chosen over Toronto or Montreal?"}
+{"id": "en-prose", "text": "The platform team rolled out a new gateway last quarter. Every request now carries a team identifier, so finance can see which product spends the most on language models and why."}
+{"id": "en-technical", "text": "Configure the rate limiter with a burst of 20 requests and a sustained rate of 600 requests per minute; tokens per minute are estimated before the call and reconciled afterwards."}
+{"id": "en-long-words", "text": "Internationalization, interoperability and decentralization are recurring architectural considerations in distributed observability pipelines."}
+{"id": "en-instructions", "text": "Summarize the following incident report in three bullet points. Focus on customer impact, root cause and follow-up actions. Keep each bullet under twenty words."}
+{"id": "en-support", "text": "My order arrived damaged and the box was open. I would like a replacement, not a refund. Can you tell me how long a replacement usually takes?"}
+{"id": "en-faq", "text": "How do I reset my password if I no longer have access to the email address on my account?"}
+{"id": "en-numbers", "text": "Revenue grew from 1,250,000 to 1,987,450 between 2024 and 2026, an increase of 58.99 percent over 24 months."}
+{"id": "en-dates", "text": "The maintenance window runs from 2026-11-07T02:00:00Z to 2026-11-07T04:30:00Z, and the rollback deadline is 03:45 UTC."}
+{"id": "en-url", "text": "See https://example.com/docs/getting-started?lang=en#install and the mirror at http://mirror.example.org/v2/index.html for details."}
+{"id": "en-mixed-case", "text": "The CI pipeline runs golangci-lint, govulncheck, actionlint and shellcheck before the e2e-local job starts the Docker Compose stack."}
+{"id": "en-dialogue", "text": "User: Can you explain what a circuit breaker does?\nAssistant: It stops sending traffic to a failing dependency for a while, then lets a few probe requests through to check whether it recovered."}
+{"id": "en-list", "text": "Shopping list:\n- 2 kg of rice\n- 6 eggs\n- olive oil\n- tomatoes, onions and garlic\n- coffee beans (medium roast)"}
+{"id": "en-markdown", "text": "## Results\n\n| Policy | Overhead p99 | Savings |\n| --- | --- | --- |\n| exact cache | 0.4 ms | 18% |\n| PII rules | 1.1 ms | n/a |"}
+{"id": "pt-short", "text": "Bom dia! Tudo bem com você?"}
+{"id": "pt-prose", "text": "A equipe de plataforma publicou uma nova versão do gateway. Agora cada requisição informa o time responsável, e o financeiro consegue acompanhar os custos por produto."}
+{"id": "pt-question", "text": "Qual é a diferença entre um limite de orçamento suave e um limite rígido, e o que acontece quando o time ultrapassa o limite rígido?"}
+{"id": "pt-instructions", "text": "Resuma o relatório abaixo em três tópicos curtos, destacando o impacto para os clientes, a causa principal e as próximas ações."}
+{"id": "es-prose", "text": "El equipo de operaciones redujo el tiempo de respuesta a la mitad después de activar la caché exacta para las preguntas frecuentes."}
+{"id": "es-question", "text": "¿Cuántos tokens por minuto puede usar cada equipo antes de recibir un error de límite de velocidad?"}
+{"id": "fr-prose", "text": "Le service de facturation exporte chaque mois un fichier conforme à la spécification FOCUS, que l'équipe financière importe dans son outil de suivi des coûts."}
+{"id": "de-prose", "text": "Die Plattform protokolliert jede Anfrage in einem manipulationssicheren Prüfprotokoll, ohne den Inhalt der Eingabeaufforderung zu speichern."}
+{"id": "de-compound", "text": "Datenschutzgrundverordnungskonformität und Rechenzentrumsinfrastrukturmodernisierung sind lange zusammengesetzte Wörter."}
+{"id": "zh-prose", "text": "平台团队上个季度推出了新的网关，现在每个请求都带有团队标识，财务部门可以看到哪个产品在语言模型上花费最多。"}
+{"id": "zh-question", "text": "如果主要服务提供商出现故障，网关会如何切换到备用提供商？"}
+{"id": "ja-prose", "text": "このゲートウェイは、チームごとのレート制限と予算を適用し、すべてのトークンをコスト所有者に割り当てます。"}
+{"id": "ja-question", "text": "キャッシュの類似度のしきい値はどのように決めればよいですか？"}
+{"id": "ko-prose", "text": "게이트웨이는 각 팀의 요청 수와 토큰 사용량을 기록하고 월별 비용 보고서를 생성합니다."}
+{"id": "ru-prose", "text": "Шлюз применяет ограничения скорости и бюджеты для каждой команды и записывает журнал аудита."}
+{"id": "emoji", "text": "Great job team! 🎉🚀 The release went out on time ✅ and nobody was paged 😴."}
+{"id": "code-go", "text": "func (b *Bucket) Allow(n int) bool {\n\tb.mu.Lock()\n\tdefer b.mu.Unlock()\n\tb.refill(time.Now())\n\tif b.tokens < float64(n) {\n\t\treturn false\n\t}\n\tb.tokens -= float64(n)\n\treturn true\n}"}
+{"id": "code-python", "text": "def chunk(items: list[int], size: int) -> list[list[int]]:\n    \"\"\"Split items into lists of at most `size` elements.\"\"\"\n    return [items[i : i + size] for i in range(0, len(items), size)]\n"}
+{"id": "code-js", "text": "export async function fetchWithRetry(url, attempts = 3) {\n  for (let i = 0; i < attempts; i++) {\n    const res = await fetch(url);\n    if (res.ok) return res.json();\n    await new Promise((r) => setTimeout(r, 2 ** i * 100));\n  }\n  throw new Error(`failed after ${attempts} attempts`);\n}"}
+{"id": "code-sql", "text": "SELECT team, project, SUM(cost_usd) AS total\nFROM usage_events\nWHERE ts >= '2026-10-01' AND ts < '2026-11-01'\nGROUP BY team, project\nORDER BY total DESC\nLIMIT 20;"}
+{"id": "code-shell", "text": "#!/usr/bin/env bash\nset -euo pipefail\nfor f in ./configs/*.yaml; do\n  yq '.spec.replicas' \"$f\" || echo \"missing replicas in $f\" >&2\ndone"}
+{"id": "json", "text": "{\"model\": \"chat-default\", \"messages\": [{\"role\": \"system\", \"content\": \"You are a helpful assistant.\"}, {\"role\": \"user\", \"content\": \"List three colors.\"}], \"temperature\": 0, \"max_tokens\": 64}"}
+{"id": "yaml", "text": "team: payments\nbudgets:\n  monthly_usd: 2500\n  soft_limit: 0.8\n  action: downgrade\nrate_limits:\n  requests_per_minute: 600\n  tokens_per_minute: 120000\n"}
+{"id": "log-line", "text": "2026-11-05T14:03:22.418Z level=INFO msg=\"request completed\" status=200 duration_ms=412.7 team=search model=chat-default cache=miss"}
+{"id": "csv", "text": "date,team,model,input_tokens,output_tokens,cost_usd\n2026-10-01,payments,gpt-4o-mini,120344,40211,0.0421\n2026-10-01,search,claude-sonnet-4-5,98012,22340,0.6294"}
+{"id": "math", "text": "Solve for x: 3x^2 - 12x + 9 = 0. The discriminant is b^2 - 4ac = 144 - 108 = 36, so x = (12 ± 6) / 6."}
+{"id": "whitespace", "text": "indented:\n        eight spaces\n\t\ttwo tabs\n\n\n\nmany blank lines above"}
+{"id": "hex-ids", "text": "request_id=7f3a9c2e-41d8-4b6f-9e0a-2c5d8e1f3b7a trace_id=4bf92f3577b34da6a3ce929d0e0e4736 span_id=00f067aa0ba902b7"}
+{"id": "repeated", "text": "test test test test test test test test test test test test test test test test"}
+{"id": "single-char", "text": "a"}
+{"id": "punctuation", "text": "Wait... what?! (Really?) [yes] {no} <maybe> -- \"quoted\" 'single' `code` #hash @at $dollar %percent ^caret &amp; *star"}
+{"id": "long-en", "text": "Platform engineering teams increasingly treat large language model usage as shared infrastructure. Instead of every product team integrating directly with a provider, requests flow through a gateway that knows who is calling, which policies apply and how much each call costs. The gateway enforces rate limits so a single batch job cannot exhaust the organization's quota, applies budgets so spending stays predictable, redacts personal data before it leaves the company, and records an audit trail that can answer questions months later. Each of these controls adds latency, so the gateway must measure its own overhead and keep it within a strict budget."}
+{"id": "long-pt", "text": "Times de engenharia de plataforma passaram a tratar o uso de modelos de linguagem como infraestrutura compartilhada. Em vez de cada time de produto integrar diretamente com um provedor, as requisições passam por um gateway que sabe quem está chamando, quais políticas se aplicam e quanto cada chamada custa. O gateway aplica limites de taxa, orçamentos e redação de dados pessoais, e registra uma trilha de auditoria."}
