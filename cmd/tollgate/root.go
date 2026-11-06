@@ -30,7 +30,7 @@ func newRootCmd() *cobra.Command {
 	}
 	root.SetVersionTemplate("{{.Version}}\n")
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error { return usageError{err} })
-	root.AddCommand(newVersionCmd(), newSimCmd(), newServeCmd())
+	root.AddCommand(newVersionCmd(), newSimCmd(), newServeCmd(), newProbeCmd())
 	return root
 }
 

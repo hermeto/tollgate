@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 003 local-stack — slices 1–3 implemented |
-| Spec Kit phase | 003 implementation; T001–T015 complete; next T002 and T016–T020 (observability/health) |
-| Last commit | `feat(gateway): add local passthrough server` on `003-local-stack-iter2` |
-| Next step | feature 003 slice 4 (`003-local-stack-iter3`): telemetry, health, ops metrics and probe |
+| Current feature | 003 local-stack — slice 4 implemented |
+| Spec Kit phase | 003 implementation; T001–T020 complete; next T021–T025 (Compose stack) |
+| Last commit | `feat(observability): add local health and telemetry` on `003-local-stack-iter3` (see `git log -1`) |
+| Next step | feature 003 slice 5 (`003-local-stack-iter4`): pinned Compose stack, up/down/smoke |
 
 ## Features (merge order)
 
@@ -28,6 +28,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (1/6) | `003-local-stack` | pipeline, request-ID, timing, ADRs | [#15](https://github.com/hermeto/tollgate/pull/15) draft | — |
 | 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | [#16](https://github.com/hermeto/tollgate/pull/16) draft | — |
 | 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | [#17](https://github.com/hermeto/tollgate/pull/17) draft | — |
+| 003 (4/6) | `003-local-stack-iter3` | OTel telemetry, health/readiness, ops metrics, probe | [#18](https://github.com/hermeto/tollgate/pull/18) ready | [iter3](pr-bodies/003-local-stack-iter3.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
@@ -103,6 +104,12 @@ branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001),
   slice, and feature N+1 branches from the last slice of N. This keeps one linear, bottom-up merge order.
 - D-B8: This file is authoritative on the top branch of the stack. Lower branches keep the copy from
   their last change, so ready PRs are not re-pushed (and re-run in CI) just to refresh progress notes.
+- D-B9: Codex support is installed alongside Claude using Spec Kit 1.3.0 multi-install-safe skills;
+  Claude remains the project default integration, while Codex receives `.agents/skills/speckit-*`.
+- D-003-4-1: OTel providers use the pinned versions in research R5, bounded batch queues and a
+  five-second exporter timeout; telemetry is fail-open and access logs are JSON plus otelslog.
+- D-003-4-2: Dependency readiness uses TCP checks at five-second intervals until protocol clients are
+  introduced; fail-closed dependencies gate readiness and fail-open dependencies degrade it.
 
 ## Decision log (features)
 
@@ -123,3 +130,6 @@ Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) a
 - 003 slices 2–3: `go test -race ./...` and `golangci-lint run ./...` green; manual simulator→gateway smoke
   passed for non-streaming JSON, `x-request-id` propagation and SSE streaming. `BenchmarkPassthrough`
   measured 1.97 ms/op on Apple M4 with the simulator in-process (includes upstream wait).
+- 003 slice 4: `go test ./...`, `go test -race ./...`, and `golangci-lint run ./...` green; telemetry
+  recording against an unavailable collector remained under 250 ms for 2,000 measurements; health
+  transition test passed.

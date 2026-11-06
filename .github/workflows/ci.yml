@@ -70,7 +70,7 @@ jobs:
           docker run --rm -v "${GITHUB_WORKSPACE}:/src:ro" -w /src
           aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
           fs --no-progress --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --exit-code 1
-          --skip-dirs .specify --skip-dirs .claude .
+          --skip-dirs .specify --skip-dirs .claude --skip-dirs .agents .
 
   sdk-compat:
     name: sdk-compat

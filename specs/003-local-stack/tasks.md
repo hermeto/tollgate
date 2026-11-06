@@ -16,7 +16,7 @@ description: "Task list for 003 local-stack"
 ## Phase 1: Setup
 
 - [x] T001 [P] Write docs/adr/0001-standalone-gateway-with-optional-extproc.md (maintainer decision, documented) and docs/adr/0002-state-stores.md (Valkey + PostgreSQL, goose for migrations, pgx driver)
-- [ ] T002 Add OpenTelemetry and Prometheus dependencies at the versions in research R5
+- [x] T002 Add OpenTelemetry and Prometheus dependencies at the versions in research R5
 
 ## Phase 2: User Story 2 — Policy pipeline contract (P1, foundational for every other story)
 
@@ -39,11 +39,11 @@ description: "Task list for 003 local-stack"
 
 ## Phase 4: User Story 5 — Health and metrics (P2)
 
-- [ ] T016 [P] [US5] Implement internal/telemetry: tracer provider (OTLP/HTTP, batch, bounded queue), logger provider (otelslog bridge + JSON stdout), meter provider with Prometheus exporter; instrument names as constants; tests that a stopped endpoint never blocks (SC-005)
-- [ ] T017 [US5] Instrument the request path: server span, per-Stage spans, upstream client span with trace context propagation; metrics `tollgate_requests_total`, `tollgate_request_duration_seconds`, `tollgate_gateway_overhead_seconds{phase}`, `tollgate_stage_duration_seconds{stage}`; access log without content (FR-019)
-- [ ] T018 [P] [US5] Implement internal/health: TCP reachability checks every 5 s, fail modes, readiness report, logged transitions; tests
-- [ ] T019 [US5] Operations server on `listen.ops`: `/healthz`, `/readyz`, `/metrics`; tests
-- [ ] T020 [P] [US5] Add `tollgate probe <url>` in cmd/tollgate/probe.go for container healthchecks
+- [x] T016 [P] [US5] Implement internal/telemetry: tracer provider (OTLP/HTTP, batch, bounded queue), logger provider (otelslog bridge + JSON stdout), meter provider with Prometheus exporter; instrument names as constants; tests that a stopped endpoint never blocks (SC-005)
+- [x] T017 [US5] Instrument the request path: server span, per-Stage spans, upstream client span with trace context propagation; metrics `tollgate_requests_total`, `tollgate_request_duration_seconds`, `tollgate_gateway_overhead_seconds{phase}`, `tollgate_stage_duration_seconds{stage}`; access log without content (FR-019)
+- [x] T018 [P] [US5] Implement internal/health: TCP reachability checks every 5 s, fail modes, readiness report, logged transitions; tests
+- [x] T019 [US5] Operations server on `listen.ops`: `/healthz`, `/readyz`, `/metrics`; tests
+- [x] T020 [P] [US5] Add `tollgate probe <url>` in cmd/tollgate/probe.go for container healthchecks
 
 ## Phase 5: User Story 3 — One-command local environment (P1)
 

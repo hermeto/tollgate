@@ -14,6 +14,7 @@ import (
 
 	"github.com/hermeto/tollgate/internal/config"
 	"github.com/hermeto/tollgate/internal/pipeline"
+	"github.com/hermeto/tollgate/internal/telemetry"
 )
 
 type Client struct {
@@ -41,6 +42,7 @@ func (c *Client) Forward(ctx context.Context, req *pipeline.Request) (*http.Resp
 	}
 	copyHeaders(r.Header, req.Header)
 	copyHeaders(r.Header, req.UpstreamHeader)
+	telemetry.Inject(ctx, r.Header)
 	if c.credential != "" {
 		if key := os.Getenv(c.credential); key != "" {
 			r.Header.Set("Authorization", "Bearer "+key)
