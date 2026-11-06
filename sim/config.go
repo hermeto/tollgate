@@ -7,13 +7,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"strconv"
 	"time"
 
-	"go.yaml.in/yaml/v4"
-
-	"github.com/hermeto/tollgate/schemas"
+	"github.com/hermeto/tollgate/internal/yamlconf"
 )
 
 // Flavor selects the wire protocol a simulator speaks.
@@ -161,24 +157,7 @@ type Overrides struct {
 // LoadConfig reads an optional YAML file, validates it against the schema, applies flavor defaults
 // and command-line overrides, and checks semantic rules the schema cannot express.
 func LoadConfig(path string, o Overrides) (Config, error) {
-	var raw any = map[string]any{}
-	if path != "" {
-		data, err := os.ReadFile(path) // #nosec G304 -- operator-supplied config path
-		if err != nil {
-			return Config{}, fmt.Errorf("read config: %w", err)
-		}
-		if err := yaml.Unmarshal(data, &raw); err != nil {
-			return Config{}, fmt.Errorf("parse config %s: %w", path, err)
-		}
-		if raw == nil {
-			raw = map[string]any{}
-		}
-	}
-	raw = normalizeKeys(raw)
-	if err := schemas.Validate("sim.schema.json", raw); err != nil {
-		return Config{}, err
-	}
-	doc, err := json.Marshal(raw)
+	doc, err := yamlconf.ReadFile(path, "sim.schema.json")
 	if err != nil {
 		return Config{}, err
 	}
@@ -255,35 +234,4 @@ func (f FaultConfig) Validate() error {
 		return fmt.Errorf("faults: error_rates plus reset_rate sum to %.3f, must be <= 1", sum)
 	}
 	return nil
-}
-
-// normalizeKeys converts YAML maps with non-string keys (e.g. 429: 0.5) into JSON-compatible maps.
-func normalizeKeys(v any) any {
-	switch t := v.(type) {
-	case map[string]any:
-		for k, val := range t {
-			t[k] = normalizeKeys(val)
-		}
-		return t
-	case map[any]any:
-		m := make(map[string]any, len(t))
-		for k, val := range t {
-			switch kk := k.(type) {
-			case string:
-				m[kk] = normalizeKeys(val)
-			case int:
-				m[strconv.Itoa(kk)] = normalizeKeys(val)
-			default:
-				m[fmt.Sprint(kk)] = normalizeKeys(val)
-			}
-		}
-		return m
-	case []any:
-		for i := range t {
-			t[i] = normalizeKeys(t[i])
-		}
-		return t
-	default:
-		return v
-	}
 }

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/hermeto/tollgate/schemas/gateway.schema.json",
+  "title": "Tollgate gateway configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "listen": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "api": { "type": "string", "minLength": 1 },
+        "ops": { "type": "string", "minLength": 1 }
+      }
+    },
+    "upstream": {
+      "type": "object", "additionalProperties": false,
+      "required": ["base_url"],
+      "properties": {
+        "base_url": { "type": "string", "format": "uri", "minLength": 1 },
+        "credential_env": { "type": "string" },
+        "timeouts": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "connect": { "$ref": "#/$defs/duration" },
+            "response_header": { "$ref": "#/$defs/duration" },
+            "idle": { "$ref": "#/$defs/duration" }
+          }
+        }
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "max_body_bytes": { "type": "integer", "minimum": 1024, "maximum": 67108864 } }
+    },
+    "shutdown": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "drain_timeout": { "$ref": "#/$defs/duration" } }
+    },
+    "pipeline": {
+      "type": "array", "uniqueItems": true,
+      "items": { "enum": ["request_id", "timing"] }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["name", "kind", "address", "fail_mode"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["redis", "postgres"] },
+          "address": { "type": "string", "minLength": 1 },
+          "fail_mode": { "enum": ["open", "closed"] }
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "otlp_endpoint": { "type": "string", "format": "uri" },
+        "service_name": { "type": "string", "minLength": 1 },
+        "traces_sample_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "duration": {
+      "type": "string",
+      "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+    }
+  }
+}
