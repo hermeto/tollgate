@@ -36,6 +36,7 @@ type Config struct {
 	Dependencies []DependencyConfig        `json:"dependencies"`
 	Telemetry    TelemetryConfig           `json:"telemetry"`
 	Models       map[string][]TargetConfig `json:"models"`
+	Identity     IdentityConfig            `json:"identity"`
 }
 type ListenConfig struct {
 	API string `json:"api"`
@@ -72,6 +73,10 @@ type TargetConfig struct {
 	Provider string `json:"provider"`
 	Model    string `json:"model"`
 	BaseURL  string `json:"base_url"`
+}
+type IdentityConfig struct {
+	KeyStore  string `json:"key_store"`
+	PolicyDir string `json:"policy_dir"`
 }
 
 // Load reads path, applies documented defaults, and validates semantic constraints.

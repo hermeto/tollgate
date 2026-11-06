@@ -34,6 +34,9 @@ type Request struct {
 
 	UpstreamHeader  http.Header // extra headers sent upstream
 	UpstreamBaseURL string      // optional per-logical-model target override
+	KeyPrefix       string
+	Team            string
+	Project         string
 	ResponseHeader  http.Header // extra headers sent to the client on every outcome
 
 	Records []Record // one entry per hook call, in call order
