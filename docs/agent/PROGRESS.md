@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 016 benchmark-harness — complete |
-| Spec Kit phase | 016 complete; T001–T004 complete; next feature 017 report-generator |
+| Current feature | 017 report-generator — complete |
+| Spec Kit phase | 017 complete; T001–T004 complete; next feature 018 docs-and-release |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 017 (`017-report-generator`): evidence report generation |
+| Next step | feature 018 (`018-docs-and-release`): release documentation and CI |
 
 ## Features (merge order)
 
@@ -44,6 +44,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 014 | `014-envoy-extproc-adapter` | protocol-neutral Envoy external-processing phase decisions | pending | [PR body](pr-bodies/014-envoy-extproc-adapter.md) |
 | 015 | `015-kubernetes-helm` | pinned renderable Helm Deployment/Service with health probes | pending | [PR body](pr-bodies/015-kubernetes-helm.md) |
 | 016 | `016-benchmark-harness` | provider-free reproducible Go benchmark runner | pending | [PR body](pr-bodies/016-benchmark-harness.md) |
+| 017 | `017-report-generator` | deterministic content-free team cost report | pending | [PR body](pr-bodies/017-report-generator.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
