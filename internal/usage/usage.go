@@ -11,18 +11,24 @@ import (
 )
 
 type Event struct {
-	RequestID                                    string            `json:"request_id"`
-	Timestamp                                    time.Time         `json:"timestamp"`
-	KeyPrefix, Team, Project                     string            `json:"key_prefix,omitempty"`
-	CostLabels                                   map[string]string `json:"cost_labels,omitempty"`
-	LogicalModel, RealModel, Provider            string            `json:"logical_model"`
-	InputTokens, OutputTokens, CachedInputTokens int               `json:"input_tokens"`
-	Estimated                                    bool              `json:"estimated"`
-	CostUSD                                      float64           `json:"cost_usd"`
-	LatencyMS                                    float64           `json:"latency_ms"`
-	Status                                       int               `json:"status"`
-	CacheStatus                                  string            `json:"cache_status,omitempty"`
-	PolicyDecisions                              []string          `json:"policy_decisions,omitempty"`
+	RequestID         string            `json:"request_id"`
+	Timestamp         time.Time         `json:"timestamp"`
+	KeyPrefix         string            `json:"key_prefix,omitempty"`
+	Team              string            `json:"team,omitempty"`
+	Project           string            `json:"project,omitempty"`
+	CostLabels        map[string]string `json:"cost_labels,omitempty"`
+	LogicalModel      string            `json:"logical_model"`
+	RealModel         string            `json:"real_model"`
+	Provider          string            `json:"provider"`
+	InputTokens       int               `json:"input_tokens"`
+	OutputTokens      int               `json:"output_tokens"`
+	CachedInputTokens int               `json:"cached_input_tokens"`
+	Estimated         bool              `json:"estimated"`
+	CostUSD           float64           `json:"cost_usd"`
+	LatencyMS         float64           `json:"latency_ms"`
+	Status            int               `json:"status"`
+	CacheStatus       string            `json:"cache_status,omitempty"`
+	PolicyDecisions   []string          `json:"policy_decisions,omitempty"`
 }
 type Sink interface{ Write([]Event) error }
 type SpoolSink struct {
@@ -120,7 +126,7 @@ func (w *Writer) run() {
 	}
 }
 func Replay(path string) ([]Event, error) {
-	f, err := os.Open(path)
+	f, err := os.Open(path) //nolint:gosec // replay path is explicitly selected by the operator.
 	if err != nil {
 		return nil, err
 	}

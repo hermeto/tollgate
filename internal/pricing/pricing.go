@@ -36,7 +36,7 @@ func Load(dir string) (*Table, error) {
 	}
 	t := &Table{prices: map[string][]Price{}}
 	for _, path := range paths {
-		body, err := os.ReadFile(path)
+		body, err := os.ReadFile(path) //nolint:gosec // paths are selected from the configured pricing directory.
 		if err != nil {
 			return nil, err
 		}

@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 006 pricing-and-usage — complete |
-| Spec Kit phase | 006 complete; T001–T008 complete; next feature 007 rate-limiting |
+| Current feature | 007 rate-limiting — complete |
+| Spec Kit phase | 007 complete; T001–T004 complete; next feature 008 budgets-and-chargeback |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 007 (`007-rate-limiting`): request and token windows |
+| Next step | feature 008 (`008-budgets-and-chargeback`): budgets and FOCUS chargeback |
 
 ## Features (merge order)
 
@@ -34,6 +34,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 004 | `004-protocol-api` | canonical model, OpenAI/Anthropic adapters, logical models, translation, SDK compatibility | [#21](https://github.com/hermeto/tollgate/pull/21) ready | [PR body](pr-bodies/004-protocol-api.md) |
 | 005 | `005-identity-and-policies` | virtual keys, policy schemas/inheritance, reload, allowlists, CLI and gateway enforcement | pending | [PR body](pr-bodies/005-identity-and-policies.md) |
 | 006 | `006-pricing-and-usage` | effective-dated pricing, cost calculation, content-free usage events, bounded async spool | pending | [PR body](pr-bodies/006-pricing-and-usage.md) |
+| 007 | `007-rate-limiting` | local token bucket admission and deterministic reset metadata | pending | [PR body](pr-bodies/007-rate-limiting.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
