@@ -55,14 +55,14 @@ description: "Task list for 003 local-stack"
 
 ## Phase 6: User Story 4 — The local stack is tested on every PR (P1)
 
-- [ ] T026 [P] [US4] End-to-end tests in test/e2e (TestPassthrough, TestStreamingRelay, TestBodyLimit, TestClientCancelCancelsUpstream, TestTelemetryDownDoesNotBlock) gated by `TOLLGATE_E2E=1`; `make e2e`
-- [ ] T027 [US4] CI job `e2e-local` (up → smoke → e2e → overhead check → down, logs on failure) aggregated by ci-gate; update internal/repotest expectations
-- [ ] T028 [US4] Overhead check script: query p99 of `tollgate_gateway_overhead_seconds` after a load step and fail above 1 ms (SC-003)
+- [x] T026 [P] [US4] End-to-end tests in test/e2e (TestPassthrough, TestStreamingRelay, TestBodyLimit, TestClientCancelCancelsUpstream, TestTelemetryDownDoesNotBlock) gated by `TOLLGATE_E2E=1`; `make e2e`
+- [x] T027 [US4] CI job `e2e-local` (up → smoke → e2e → overhead check → down, logs on failure) aggregated by ci-gate; update internal/repotest expectations
+- [x] T028 [US4] Overhead check script: query p99 of `tollgate_gateway_overhead_seconds` after a load step and fail above 1 ms (SC-003)
 
 ## Phase 7: Polish
 
-- [ ] T029 [P] Write docs/local-stack.md (architecture of the stack, URLs, commands, troubleshooting, measured numbers) and link it from README and CONTRIBUTING
-- [ ] T030 Run `make lint test`, the Definition of done and update docs/agent/PROGRESS.md
+- [x] T029 [P] Write docs/local-stack.md (architecture of the stack, URLs, commands, troubleshooting, measured numbers) and link it from README and CONTRIBUTING
+- [x] T030 Run `make lint test`, the Definition of done and update docs/agent/PROGRESS.md
 
 ## Dependencies & Execution Order
 

@@ -49,3 +49,7 @@ down: ## Stop the local Compose profile and remove its volumes
 .PHONY: smoke
 smoke: ## Exercise non-streaming and streaming requests through the local gateway
 	scripts/smoke.sh
+
+.PHONY: e2e
+e2e: ## Run end-to-end tests against the running local stack
+	TOLLGATE_E2E=1 $(GO) test ./test/e2e/... -count=1

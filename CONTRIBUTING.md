@@ -27,6 +27,17 @@ make sdk-compat   # official OpenAI and Anthropic SDKs against the simulators (n
 make help         # all targets
 ```
 
+From feature 003 onward, Docker Compose is also available locally:
+
+```bash
+make up       # start the loopback-only local profile
+make smoke    # exercise the gateway, metrics and trace export
+make e2e      # run stack-gated end-to-end tests
+make down     # remove the profile and its volumes
+```
+
+See [docs/local-stack.md](docs/local-stack.md) for service URLs and troubleshooting.
+
 No target calls a model provider or any paid API. You never need provider keys to contribute.
 
 ### Tooling and configuration
