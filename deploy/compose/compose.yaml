@@ -1,0 +1,104 @@
+name: tollgate
+
+services:
+  gateway:
+    build:
+      context: ../..
+      dockerfile: deploy/compose/gateway.Dockerfile
+    image: tollgate/gateway:local
+    command: ["serve", "--config", "/etc/tollgate/gateway.yaml"]
+    environment:
+      TOLLGATE_UPSTREAM_OPENAI_KEY: tg-example-upstream
+    volumes:
+      - ./gateway.yaml:/etc/tollgate/gateway.yaml:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      sim-openai: {condition: service_healthy}
+      valkey: {condition: service_healthy}
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "/tollgate", "probe", "http://127.0.0.1:8081"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  sim-openai:
+    image: tollgate/gateway:local
+    command: ["sim", "--flavor", "openai", "--host", "0.0.0.0", "--port", "9001"]
+    expose: ["9001"]
+    healthcheck:
+      test: ["CMD", "/tollgate", "probe", "http://127.0.0.1:9001/_sim/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  sim-anthropic:
+    image: tollgate/gateway:local
+    command: ["sim", "--flavor", "anthropic", "--host", "0.0.0.0", "--port", "9002"]
+    expose: ["9002"]
+
+  valkey:
+    image: valkey/valkey:9.1.3-alpine@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b
+    expose: ["6379"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  postgres:
+    image: postgres:18.6-alpine@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5
+    environment:
+      POSTGRES_USER: tollgate
+      POSTGRES_PASSWORD: tg-example-postgres
+      POSTGRES_DB: tollgate
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    expose: ["5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tollgate -d tollgate"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b
+    command: ["--config=/etc/otelcol-contrib/otel-collector.yaml"]
+    volumes: [./otel-collector.yaml:/etc/otelcol-contrib/otel-collector.yaml:ro]
+    ports:
+      - "127.0.0.1:4318:4318"
+    expose: ["4317", "4318", "13133"]
+
+  prometheus:
+    image: prom/prometheus:v3.16.0@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes: [./prometheus.yml:/etc/prometheus/prometheus.yml:ro]
+    ports: ["127.0.0.1:9090:9090"]
+
+  tempo:
+    image: grafana/tempo:3.1.1@sha256:64e2fbd56d9c2b3412a4b430a58ea59e91a670b1e75f920a0c702213ad145044
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes: [./tempo.yaml:/etc/tempo/tempo.yaml:ro]
+    ports: ["127.0.0.1:3200:3200"]
+
+  loki:
+    image: grafana/loki:3.7.9@sha256:0db216b630ae1f348a1584c67f3cead8b4c1fc839169a39501db664744158e28
+    command: ["-config.file=/etc/loki/loki.yaml"]
+    volumes: [./loki.yaml:/etc/loki/loki.yaml:ro]
+    ports: ["127.0.0.1:3100:3100"]
+
+  grafana:
+    image: grafana/grafana:13.3.0@sha256:488984b716c0862639f91a698adbe2862677a5a07bad42da5f03f3030883b205
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports: ["127.0.0.1:3000:3000"]
+
+volumes:
+  postgres-data:
+    name: tollgate-postgres-data

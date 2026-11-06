@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 003 local-stack — slice 4 implemented |
-| Spec Kit phase | 003 implementation; T001–T020 complete; next T021–T025 (Compose stack) |
-| Last commit | `feat(observability): add local health and telemetry` on `003-local-stack-iter3` (see `git log -1`) |
-| Next step | feature 003 slice 5 (`003-local-stack-iter4`): pinned Compose stack, up/down/smoke |
+| Current feature | 003 local-stack — slice 5 implemented |
+| Spec Kit phase | 003 implementation; T001–T025 complete; next T026–T030 (E2E, CI and docs) |
+| Last commit | `feat(stack): add pinned local Compose profile` on `003-local-stack-iter4` (see `git log -1`) |
+| Next step | feature 003 slice 6 (`003-local-stack-iter5`): E2E tests, CI gate, overhead check and docs |
 
 ## Features (merge order)
 
@@ -29,6 +29,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | [#16](https://github.com/hermeto/tollgate/pull/16) draft | — |
 | 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | [#17](https://github.com/hermeto/tollgate/pull/17) draft | — |
 | 003 (4/6) | `003-local-stack-iter3` | OTel telemetry, health/readiness, ops metrics, probe | [#18](https://github.com/hermeto/tollgate/pull/18) ready | [iter3](pr-bodies/003-local-stack-iter3.md) |
+| 003 (5/6) | `003-local-stack-iter4` | pinned Compose stack, up/down/smoke | pending | [iter4](pr-bodies/003-local-stack-iter4.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook

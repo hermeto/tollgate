@@ -37,3 +37,15 @@ bench-micro: ## Run Go micro-benchmarks
 .PHONY: sdk-compat
 sdk-compat: ## Run the official OpenAI and Anthropic SDKs (Python, TypeScript, Go) against the simulators
 	TARGET=$(or $(TARGET),sim) scripts/sdk-compat.sh
+
+.PHONY: up
+up: ## Start the local Compose profile
+	PROFILE=$(or $(PROFILE),local) scripts/stack.sh up
+
+.PHONY: down
+down: ## Stop the local Compose profile and remove its volumes
+	PROFILE=$(or $(PROFILE),local) scripts/stack.sh down
+
+.PHONY: smoke
+smoke: ## Exercise non-streaming and streaming requests through the local gateway
+	scripts/smoke.sh
