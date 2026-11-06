@@ -32,20 +32,20 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (5/6) | `003-local-stack-iter4` | pinned Compose stack, up/down/smoke | pending | [iter4](pr-bodies/003-local-stack-iter4.md) |
 | 003 (6/6) | `003-local-stack-iter5` | E2E tests, CI gate, overhead check, docs | pending | [iter5](pr-bodies/003-local-stack-iter5.md) |
 | 004 | `004-protocol-api` | canonical model, OpenAI/Anthropic adapters, logical models, translation, SDK compatibility | [#21](https://github.com/hermeto/tollgate/pull/21) ready | [PR body](pr-bodies/004-protocol-api.md) |
-| 005 | `005-identity-and-policies` | virtual keys, policy schemas/inheritance, reload, allowlists, CLI and gateway enforcement | pending | [PR body](pr-bodies/005-identity-and-policies.md) |
-| 006 | `006-pricing-and-usage` | effective-dated pricing, cost calculation, content-free usage events, bounded async spool | pending | [PR body](pr-bodies/006-pricing-and-usage.md) |
-| 007 | `007-rate-limiting` | local token bucket admission and deterministic reset metadata | pending | [PR body](pr-bodies/007-rate-limiting.md) |
-| 008 | `008-budgets-and-chargeback` | spend reservations, soft/hard budget decisions, FOCUS-aligned CSV export | pending | [PR body](pr-bodies/008-budgets-and-chargeback.md) |
-| 009 | `009-routing-and-fallback` | weighted healthy-target selection and bounded retry backoff | pending | [PR body](pr-bodies/009-routing-and-fallback.md) |
-| 010 | `010-observability` | normalized GenAI attributes, dashboards and overhead alert | pending | [PR body](pr-bodies/010-observability.md) |
-| 011 | `011-pii-redaction` | deterministic synthetic PII detection and privacy-safe redaction metadata | pending | [PR body](pr-bodies/011-pii-redaction.md) |
-| 012 | `012-audit-log` | content-free hash-chained governance events and verification | pending | [PR body](pr-bodies/012-audit-log.md) |
-| 013 | `013-response-cache` | bounded exact response cache with TTL and content-addressed keys | pending | [PR body](pr-bodies/013-response-cache.md) |
-| 014 | `014-envoy-extproc-adapter` | protocol-neutral Envoy external-processing phase decisions | pending | [PR body](pr-bodies/014-envoy-extproc-adapter.md) |
-| 015 | `015-kubernetes-helm` | pinned renderable Helm Deployment/Service with health probes | pending | [PR body](pr-bodies/015-kubernetes-helm.md) |
-| 016 | `016-benchmark-harness` | provider-free reproducible Go benchmark runner | pending | [PR body](pr-bodies/016-benchmark-harness.md) |
-| 017 | `017-report-generator` | deterministic content-free team cost report | pending | [PR body](pr-bodies/017-report-generator.md) |
-| 018 | `018-docs-and-release` | changelog, release checklist and manual CI verification | pending | [PR body](pr-bodies/018-docs-and-release.md) |
+| 005 | `005-identity-and-policies` | virtual keys, policy schemas/inheritance, reload, allowlists, CLI and gateway enforcement | [#22](https://github.com/hermeto/tollgate/pull/22) open | [PR body](pr-bodies/005-identity-and-policies.md) |
+| 006 | `006-pricing-and-usage` | effective-dated pricing, cost calculation, content-free usage events, bounded async spool | [#23](https://github.com/hermeto/tollgate/pull/23) open | [PR body](pr-bodies/006-pricing-and-usage.md) |
+| 007 | `007-rate-limiting` | local token bucket admission and deterministic reset metadata | [#24](https://github.com/hermeto/tollgate/pull/24) open | [PR body](pr-bodies/007-rate-limiting.md) |
+| 008 | `008-budgets-and-chargeback` | spend reservations, soft/hard budget decisions, FOCUS-aligned CSV export | [#25](https://github.com/hermeto/tollgate/pull/25) open | [PR body](pr-bodies/008-budgets-and-chargeback.md) |
+| 009 | `009-routing-and-fallback` | weighted healthy-target selection and bounded retry backoff | [#26](https://github.com/hermeto/tollgate/pull/26) open | [PR body](pr-bodies/009-routing-and-fallback.md) |
+| 010 | `010-observability` | normalized GenAI attributes, dashboards and overhead alert | [#27](https://github.com/hermeto/tollgate/pull/27) open | [PR body](pr-bodies/010-observability.md) |
+| 011 | `011-pii-redaction` | deterministic synthetic PII detection and privacy-safe redaction metadata | [#28](https://github.com/hermeto/tollgate/pull/28) open | [PR body](pr-bodies/011-pii-redaction.md) |
+| 012 | `012-audit-log` | content-free hash-chained governance events and verification | [#29](https://github.com/hermeto/tollgate/pull/29) open | [PR body](pr-bodies/012-audit-log.md) |
+| 013 | `013-response-cache` | bounded exact response cache with TTL and content-addressed keys | [#30](https://github.com/hermeto/tollgate/pull/30) open | [PR body](pr-bodies/013-response-cache.md) |
+| 014 | `014-envoy-extproc-adapter` | protocol-neutral Envoy external-processing phase decisions | [#31](https://github.com/hermeto/tollgate/pull/31) open | [PR body](pr-bodies/014-envoy-extproc-adapter.md) |
+| 015 | `015-kubernetes-helm` | pinned renderable Helm Deployment/Service with health probes | [#32](https://github.com/hermeto/tollgate/pull/32) open | [PR body](pr-bodies/015-kubernetes-helm.md) |
+| 016 | `016-benchmark-harness` | provider-free reproducible Go benchmark runner | [#33](https://github.com/hermeto/tollgate/pull/33) open | [PR body](pr-bodies/016-benchmark-harness.md) |
+| 017 | `017-report-generator` | deterministic content-free team cost report | [#34](https://github.com/hermeto/tollgate/pull/34) open | [PR body](pr-bodies/017-report-generator.md) |
+| 018 | `018-docs-and-release` | changelog, release checklist and manual CI verification | [#35](https://github.com/hermeto/tollgate/pull/35) open | [PR body](pr-bodies/018-docs-and-release.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
