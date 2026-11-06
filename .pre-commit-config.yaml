@@ -11,7 +11,7 @@ repos:
       - id: check-json
       - id: check-yaml
         args: [--allow-multiple-documents]
-        exclude: ^deploy/helm/.*/templates/
+        exclude: ^(deploy/helm/.*/templates/|charts/.*/templates/)
       - id: detect-private-key
       - id: end-of-file-fixer
         # SSE fixtures end with a blank line: it dispatches the final event (WHATWG SSE spec).
@@ -29,6 +29,7 @@ repos:
     hooks:
       - id: yamllint
         args: [--strict]
+        exclude: ^charts/.*/templates/
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: 341e2a331ba578029e66c2e01183e7a6b5ca9ab4 # frozen: v0.24.0
     hooks:
