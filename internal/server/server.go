@@ -17,7 +17,9 @@ import (
 	"github.com/hermeto/tollgate/internal/api/openai"
 	"github.com/hermeto/tollgate/internal/config"
 	"github.com/hermeto/tollgate/internal/health"
+	"github.com/hermeto/tollgate/internal/identity"
 	"github.com/hermeto/tollgate/internal/pipeline"
+	"github.com/hermeto/tollgate/internal/policy"
 	"github.com/hermeto/tollgate/internal/sse"
 	"github.com/hermeto/tollgate/internal/telemetry"
 	"github.com/hermeto/tollgate/internal/upstream"
@@ -33,6 +35,8 @@ type Server struct {
 	pipeline  *pipeline.Pipeline
 	telemetry *telemetry.Telemetry
 	health    *health.Manager
+	identity  *identity.Store
+	policy    *policy.Loader
 	draining  atomic.Bool
 }
 
@@ -61,6 +65,18 @@ func New(cfg config.Config) (*Server, error) {
 	}
 	s.telemetry = t
 	s.health = health.New(cfg.Dependencies, t.Logger)
+	if cfg.Identity.KeyStore != "" {
+		s.identity, err = identity.Open(cfg.Identity.KeyStore)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if cfg.Identity.PolicyDir != "" {
+		s.policy, err = policy.NewLoader(cfg.Identity.PolicyDir)
+		if err != nil {
+			return nil, err
+		}
+	}
 	s.api = &http.Server{Addr: cfg.Listen.API, Handler: http.HandlerFunc(s.handle), ReadHeaderTimeout: 10 * time.Second}
 	s.ops = &http.Server{Addr: cfg.Listen.Ops, Handler: http.HandlerFunc(s.handleOps), ReadHeaderTimeout: 5 * time.Second}
 	return s, nil
@@ -131,6 +147,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/v1/messages" {
 		protocol = pipeline.ProtocolAnthropic
 	}
+	requestedModel := modelName(body)
 	prepared, target, prepErr := s.prepare(protocol, r.URL.Path, body)
 	if prepErr != nil {
 		writeProtocolError(w, protocol, prepErr)
@@ -143,6 +160,26 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	}
 	req := pipeline.NewRequest(protocol, r.Method, r.URL.Path, r.Header.Clone(), body)
 	req.UpstreamBaseURL = target.BaseURL
+	if s.identity != nil {
+		rawKey := strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
+		id, ok := s.identity.Authenticate(rawKey, time.Now().UTC())
+		if !ok {
+			writeProtocolError(w, protocol, &api.Error{Status: http.StatusUnauthorized, Type: "authentication_error", Message: "invalid or expired key"})
+			return
+		}
+		req.KeyPrefix, req.Team, req.Project = id.Prefix, id.Team, id.Project
+		req.ResponseHeader.Set("X-Tollgate-Team", id.Team)
+		if s.policy != nil {
+			allowed, dryRun := s.policy.Snapshot().Allows(id.Team, id.Project, requestedModel)
+			if !allowed && !dryRun {
+				writeProtocolError(w, protocol, &api.Error{Status: http.StatusForbidden, Type: "permission_error", Message: "model is not allowed by policy"})
+				return
+			}
+			if !allowed {
+				s.telemetry.Logger.Warn("policy dry-run denial", "team", id.Team, "project", id.Project, "model", requestedModel)
+			}
+		}
+	}
 	req.Received = time.Now()
 	req.Stream = isStream(body)
 	passed, decision := s.pipeline.Request(ctx, req)
@@ -277,6 +314,14 @@ func asAPIError(err error) *api.Error {
 		return value
 	}
 	return api.BadRequest(err.Error())
+}
+
+func modelName(body []byte) string {
+	var value struct {
+		Model string `json:"model"`
+	}
+	_ = json.Unmarshal(body, &value)
+	return value.Model
 }
 
 func (s *Server) writeLogicalModels(w http.ResponseWriter) {

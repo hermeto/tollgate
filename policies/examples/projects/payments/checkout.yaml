@@ -1,0 +1,3 @@
+enabled: true
+mode: dry-run
+models: [gpt-4o-mini, claude-sonnet-5-5]

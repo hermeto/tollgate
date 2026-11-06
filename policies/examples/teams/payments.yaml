@@ -1,0 +1,3 @@
+enabled: true
+mode: enforce
+models: [gpt-4o-mini]

@@ -76,6 +76,13 @@
           }
         }
       }
+    },
+    "identity": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "key_store": { "type": "string", "minLength": 1 },
+        "policy_dir": { "type": "string", "minLength": 1 }
+      }
     }
   },
   "$defs": {
