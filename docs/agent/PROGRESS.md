@@ -28,7 +28,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (1/6) | `003-local-stack` | pipeline, request-ID, timing, ADRs | [#15](https://github.com/hermeto/tollgate/pull/15) draft | — |
 | 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | [#16](https://github.com/hermeto/tollgate/pull/16) draft | — |
 | 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | [#17](https://github.com/hermeto/tollgate/pull/17) draft | — |
-| 003 (4/6) | `003-local-stack-iter3` | OTel telemetry, health/readiness, ops metrics, probe | pending | — |
+| 003 (4/6) | `003-local-stack-iter3` | OTel telemetry, health/readiness, ops metrics, probe | [#18](https://github.com/hermeto/tollgate/pull/18) ready | [iter3](pr-bodies/003-local-stack-iter3.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
