@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 015 kubernetes-helm — complete |
-| Spec Kit phase | 015 complete; T001–T004 complete; next feature 016 benchmark-harness |
+| Current feature | 016 benchmark-harness — complete |
+| Spec Kit phase | 016 complete; T001–T004 complete; next feature 017 report-generator |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 016 (`016-benchmark-harness`): reproducible benchmark harness |
+| Next step | feature 017 (`017-report-generator`): evidence report generation |
 
 ## Features (merge order)
 
@@ -43,6 +43,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 013 | `013-response-cache` | bounded exact response cache with TTL and content-addressed keys | pending | [PR body](pr-bodies/013-response-cache.md) |
 | 014 | `014-envoy-extproc-adapter` | protocol-neutral Envoy external-processing phase decisions | pending | [PR body](pr-bodies/014-envoy-extproc-adapter.md) |
 | 015 | `015-kubernetes-helm` | pinned renderable Helm Deployment/Service with health probes | pending | [PR body](pr-bodies/015-kubernetes-helm.md) |
+| 016 | `016-benchmark-harness` | provider-free reproducible Go benchmark runner | pending | [PR body](pr-bodies/016-benchmark-harness.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
