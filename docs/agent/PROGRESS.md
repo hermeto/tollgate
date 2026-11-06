@@ -26,8 +26,8 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 002 (8/9) | `002-provider-simulator-iter7` | SDK compat, embeddings forward | [#13](https://github.com/hermeto/tollgate/pull/13) | [iter7](pr-bodies/002-provider-simulator-iter7.md) |
 | 002 (9/9) | `002-provider-simulator-iter8` | pacing deadlines, perf, ADR-0009 | pending | [iter8](pr-bodies/002-provider-simulator-iter8.md) |
 | 003 (1/6) | `003-local-stack` | pipeline, request-ID, timing, ADRs | [#15](https://github.com/hermeto/tollgate/pull/15) draft | — |
-| 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | pending | — |
-| 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | pending | — |
+| 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | [#16](https://github.com/hermeto/tollgate/pull/16) draft | — |
+| 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | [#17](https://github.com/hermeto/tollgate/pull/17) draft | — |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
