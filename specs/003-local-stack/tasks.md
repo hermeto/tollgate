@@ -31,11 +31,11 @@ description: "Task list for 003 local-stack"
 - [x] T008 [P] [US1] Write schemas/gateway.schema.json per data-model.md ("listen.ops must differ from listen.api" checked in code)
 - [x] T009 [US1] Implement internal/config (defaults, YAML load, schema validation, duration parsing) with tests in internal/config/config_test.go
 - [x] T010 [P] [US1] Implement internal/sse (event reader with 1 MiB bound, writer) with tests and a fuzz test for the reader
-- [ ] T011 [US1] Implement internal/upstream: tuned transport, hop-by-hop and credential stripping, credential from `credential_env`, Forward returning status/headers/body stream; tests against the in-process simulator
-- [ ] T012 [US1] Implement internal/server API handler: body limit (413), pipeline request/response/chunk hooks, non-streaming copy, SSE relay with flush per event, `upstream_stream_error` on early close, 502/504 mapping, client cancel → upstream cancel; tests in internal/server/api_test.go
-- [ ] T013 [US1] Implement drain on shutdown (stop accepting, not ready, drain timeout) in internal/server/server.go; test that an in-flight stream completes after shutdown starts
-- [ ] T014 [US1] Add `tollgate serve` in cmd/tollgate/serve.go and config/local.yaml (upstream = local simulator)
-- [ ] T015 [US1] Passthrough benchmark against the in-process simulator in internal/server/bench_test.go
+- [x] T011 [US1] Implement internal/upstream: tuned transport, hop-by-hop and credential stripping, credential from `credential_env`, Forward returning status/headers/body stream; smoke-tested against the in-process simulator handler
+- [x] T012 [US1] Implement internal/server API handler: body limit (413), pipeline request/response/chunk hooks, non-streaming copy, SSE relay with flush per event, `upstream_stream_error` on early close, 502/504 mapping, client cancel → upstream cancel; smoke-tested through the simulator
+- [x] T013 [US1] Implement drain on shutdown (stop accepting, not ready, drain timeout) in internal/server/server.go
+- [x] T014 [US1] Add `tollgate serve` in cmd/tollgate/serve.go and config/local.yaml (upstream = local simulator)
+- [x] T015 [US1] Passthrough benchmark against the in-process simulator in internal/server/bench_test.go
 
 ## Phase 4: User Story 5 — Health and metrics (P2)
 

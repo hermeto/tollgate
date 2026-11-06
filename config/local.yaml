@@ -1,0 +1,6 @@
+listen:
+  api: ":8080"
+  ops: ":8081"
+upstream:
+  base_url: http://127.0.0.1:9001
+  credential_env: TOLLGATE_UPSTREAM_OPENAI_KEY

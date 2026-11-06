@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 002 provider-simulator — all 9 slices implemented; converge clean |
-| Spec Kit phase | 002 done (step 12 pending CI on the last PRs); next 003 local-stack |
-| Last commit | `docs(agent): record 002 completion` on `002-provider-simulator-iter8` |
-| Next step | feature 003 from `002-provider-simulator-iter8` |
+| Current feature | 003 local-stack — slices 1–3 implemented |
+| Spec Kit phase | 003 implementation; T001–T015 complete; next T002 and T016–T020 (observability/health) |
+| Last commit | `feat(gateway): add local passthrough server` on `003-local-stack-iter2` |
+| Next step | feature 003 slice 4 (`003-local-stack-iter3`): telemetry, health, ops metrics and probe |
 
 ## Features (merge order)
 
@@ -25,6 +25,9 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 002 (7/9) | `002-provider-simulator-iter6` | latency, faults | [#11](https://github.com/hermeto/tollgate/pull/11) ready | [iter6](pr-bodies/002-provider-simulator-iter6.md) |
 | 002 (8/9) | `002-provider-simulator-iter7` | SDK compat, embeddings forward | [#13](https://github.com/hermeto/tollgate/pull/13) | [iter7](pr-bodies/002-provider-simulator-iter7.md) |
 | 002 (9/9) | `002-provider-simulator-iter8` | pacing deadlines, perf, ADR-0009 | pending | [iter8](pr-bodies/002-provider-simulator-iter8.md) |
+| 003 (1/6) | `003-local-stack` | pipeline, request-ID, timing, ADRs | [#15](https://github.com/hermeto/tollgate/pull/15) draft | — |
+| 003 (2/6) | `003-local-stack-iter1` | gateway schema, config, SSE | [#16](https://github.com/hermeto/tollgate/pull/16) draft | — |
+| 003 (3/6) | `003-local-stack-iter2` | upstream, passthrough server, drain, serve | [#17](https://github.com/hermeto/tollgate/pull/17) draft | — |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
@@ -117,3 +120,6 @@ Per-feature decisions live in each `specs/NNN-*/spec.md` (`## Clarifications`) a
 - 002 note: the agent's own `git checkout <file>` during a debug cleanup discarded an uncommitted change
   once (re-applied immediately); keep debug instrumentation in scratch copies, never in tracked files.
 - 001 SC-003/SC-006: PR #4 first run — every check green; `ci-gate` reported ~2.5 min after the push (lint 1m56s is the longest job).
+- 003 slices 2–3: `go test -race ./...` and `golangci-lint run ./...` green; manual simulator→gateway smoke
+  passed for non-streaming JSON, `x-request-id` propagation and SSE streaming. `BenchmarkPassthrough`
+  measured 1.97 ms/op on Apple M4 with the simulator in-process (includes upstream wait).
