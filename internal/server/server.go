@@ -13,17 +13,24 @@ import (
 	"time"
 
 	"github.com/hermeto/tollgate/internal/config"
+	"github.com/hermeto/tollgate/internal/health"
 	"github.com/hermeto/tollgate/internal/pipeline"
 	"github.com/hermeto/tollgate/internal/sse"
+	"github.com/hermeto/tollgate/internal/telemetry"
 	"github.com/hermeto/tollgate/internal/upstream"
+
+	"go.opentelemetry.io/otel/attribute"
+	otelmetric "go.opentelemetry.io/otel/metric"
 )
 
 type Server struct {
-	cfg      config.Config
-	api, ops *http.Server
-	client   *upstream.Client
-	pipeline *pipeline.Pipeline
-	draining atomic.Bool
+	cfg       config.Config
+	api, ops  *http.Server
+	client    *upstream.Client
+	pipeline  *pipeline.Pipeline
+	telemetry *telemetry.Telemetry
+	health    *health.Manager
+	draining  atomic.Bool
 }
 
 func New(cfg config.Config) (*Server, error) {
@@ -45,12 +52,19 @@ func New(cfg config.Config) (*Server, error) {
 		return nil, err
 	}
 	s := &Server{cfg: cfg, client: client, pipeline: p}
+	t, err := telemetry.New(context.Background(), cfg.Telemetry.ServiceName, cfg.Telemetry.OTLPEndpoint)
+	if err != nil {
+		return nil, err
+	}
+	s.telemetry = t
+	s.health = health.New(cfg.Dependencies, t.Logger)
 	s.api = &http.Server{Addr: cfg.Listen.API, Handler: http.HandlerFunc(s.handle), ReadHeaderTimeout: 10 * time.Second}
 	s.ops = &http.Server{Addr: cfg.Listen.Ops, Handler: http.HandlerFunc(s.handleOps), ReadHeaderTimeout: 5 * time.Second}
 	return s, nil
 }
 
 func (s *Server) Serve(ctx context.Context) error {
+	s.health.Start(ctx)
 	apiLn, err := (&net.ListenConfig{}).Listen(ctx, "tcp", s.api.Addr)
 	if err != nil {
 		return err
@@ -80,6 +94,7 @@ func (s *Server) Serve(ctx context.Context) error {
 		_ = s.api.Close()
 		return err
 	}
+	_ = s.telemetry.Shutdown(context.Background())
 	return nil
 }
 func cleanServeError(err error) error {
@@ -90,6 +105,14 @@ func cleanServeError(err error) error {
 }
 
 func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
+	ctx, span := s.telemetry.Tracer.Start(r.Context(), "tollgate.server")
+	defer span.End()
+	r = r.WithContext(ctx)
+	started := time.Now()
+	defer func() {
+		s.telemetry.Duration.Record(ctx, time.Since(started).Seconds(), otelmetric.WithAttributes(attribute.String("http.request.method", r.Method), attribute.String("url.path", r.URL.Path)))
+		s.telemetry.Requests.Add(ctx, 1)
+	}()
 	if r.Method != http.MethodPost || r.URL.Path != "/v1/chat/completions" {
 		writeError(w, 404, "not_found", "unknown endpoint")
 		return
@@ -102,7 +125,16 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	req := pipeline.NewRequest(pipeline.ProtocolOpenAI, r.Method, r.URL.Path, r.Header.Clone(), body)
 	req.Received = time.Now()
 	req.Stream = isStream(body)
-	passed, decision := s.pipeline.Request(r.Context(), req)
+	passed, decision := s.pipeline.Request(ctx, req)
+	for stage, duration := range pipeline.StageTime(req) {
+		s.telemetry.Stages.Record(ctx, duration.Seconds(), otelmetric.WithAttributes(attribute.String("stage", stage)))
+	}
+	for _, record := range req.Records {
+		_, stageSpan := s.telemetry.Tracer.Start(ctx, "tollgate.stage."+record.Stage)
+		stageSpan.SetAttributes(attribute.String("tollgate.stage", record.Stage), attribute.String("tollgate.phase", record.Phase.String()), attribute.String("tollgate.decision", record.Kind.String()), attribute.Int64("tollgate.duration_ns", record.Duration.Nanoseconds()))
+		stageSpan.End()
+	}
+	s.telemetry.Logger.InfoContext(ctx, "request received", "request_id", req.ID, "method", req.Method, "path", req.Path, "body_bytes", len(req.Body))
 	if decision.Kind == pipeline.Deny {
 		writeError(w, decision.Status, decision.Type, decision.Message)
 		return
@@ -111,12 +143,17 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, req, decision.Response)
 		return
 	}
-	resp, err := s.client.Forward(r.Context(), req)
+	upstreamCtx, upstreamSpan := s.telemetry.Tracer.Start(ctx, "tollgate.upstream")
+	resp, err := s.client.Forward(upstreamCtx, req)
+	upstreamSpan.SetAttributes(attribute.String("tollgate.request_id", req.ID), attribute.String("http.request.method", req.Method), attribute.String("url.path", req.Path))
+	upstreamSpan.End()
+	s.telemetry.Overhead.Record(ctx, time.Since(req.Received).Seconds(), otelmetric.WithAttributes(attribute.String("phase", telemetry.PhaseRequest)))
 	if err != nil {
 		writeError(w, 502, "upstream_unavailable", "upstream unavailable")
 		return
 	}
 	defer resp.Body.Close()
+	responseStarted := time.Now()
 	pResp := &pipeline.Response{Status: resp.StatusCode, Header: resp.Header.Clone(), Stream: req.Stream}
 	if !req.Stream {
 		pResp.Body, err = io.ReadAll(resp.Body)
@@ -124,17 +161,19 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 502, "upstream_unavailable", "upstream read failed")
 			return
 		}
-		if d := s.pipeline.Response(r.Context(), req, pResp, passed); d.Stops() {
+		if d := s.pipeline.Response(ctx, req, pResp, passed); d.Stops() {
 			writeDecision(w, d)
 			return
 		}
+		s.telemetry.Overhead.Record(ctx, time.Since(responseStarted).Seconds(), otelmetric.WithAttributes(attribute.String("phase", telemetry.PhaseResponse)))
 		s.writeResponse(w, req, pResp)
 		return
 	}
-	if d := s.pipeline.Response(r.Context(), req, pResp, passed); d.Stops() {
+	if d := s.pipeline.Response(ctx, req, pResp, passed); d.Stops() {
 		writeDecision(w, d)
 		return
 	}
+	s.telemetry.Overhead.Record(ctx, time.Since(responseStarted).Seconds(), otelmetric.WithAttributes(attribute.String("phase", telemetry.PhaseResponse)))
 	copyResponseHeaders(w.Header(), req.ResponseHeader)
 	copyResponseHeaders(w.Header(), pResp.Header)
 	w.WriteHeader(resp.StatusCode)
@@ -143,8 +182,9 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	for {
 		event, readErr := reader.ReadEvent()
 		if len(event) > 0 {
+			chunkStarted := time.Now()
 			chunk := &pipeline.Chunk{Data: event}
-			if d := s.pipeline.Chunk(r.Context(), req, chunk, passed); d.Stops() {
+			if d := s.pipeline.Chunk(ctx, req, chunk, passed); d.Stops() {
 				writeStreamError(writer, flusher)
 				return
 			}
@@ -154,6 +194,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 			if flusher != nil {
 				flusher.Flush()
 			}
+			s.telemetry.Overhead.Record(ctx, time.Since(chunkStarted).Seconds(), otelmetric.WithAttributes(attribute.String("phase", telemetry.PhaseChunk)))
 		}
 		if readErr != nil {
 			if errors.Is(readErr, io.EOF) && len(event) > 0 || !errors.Is(readErr, io.EOF) {
@@ -176,14 +217,13 @@ func (s *Server) handleOps(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	case "/readyz":
-		if s.draining.Load() {
-			writeJSON(w, 503, map[string]string{"status": "not_ready"})
+		if s.draining.Load() || !s.health.Ready() {
+			writeJSON(w, 503, map[string]any{"status": "not_ready", "dependencies": s.health.Report()})
 		} else {
-			writeJSON(w, 200, map[string]string{"status": "ready"})
+			writeJSON(w, 200, map[string]any{"status": "ready", "dependencies": s.health.Report()})
 		}
 	case "/metrics":
-		w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-		w.WriteHeader(200)
+		telemetry.MetricsHandler().ServeHTTP(w, r)
 	default:
 		http.NotFound(w, r)
 	}
