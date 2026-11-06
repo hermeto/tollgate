@@ -12,6 +12,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/hermeto/tollgate/internal/api"
+	"github.com/hermeto/tollgate/internal/api/anthropic"
+	"github.com/hermeto/tollgate/internal/api/openai"
 	"github.com/hermeto/tollgate/internal/config"
 	"github.com/hermeto/tollgate/internal/health"
 	"github.com/hermeto/tollgate/internal/pipeline"
@@ -113,7 +116,9 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		s.telemetry.Duration.Record(ctx, time.Since(started).Seconds(), otelmetric.WithAttributes(attribute.String("http.request.method", r.Method), attribute.String("url.path", r.URL.Path)))
 		s.telemetry.Requests.Add(ctx, 1)
 	}()
-	if r.Method != http.MethodPost || r.URL.Path != "/v1/chat/completions" {
+	validPost := r.Method == http.MethodPost && (r.URL.Path == "/v1/chat/completions" || r.URL.Path == "/v1/embeddings" || r.URL.Path == "/v1/messages")
+	validModels := r.Method == http.MethodGet && r.URL.Path == "/v1/models"
+	if !validPost && !validModels {
 		writeError(w, 404, "not_found", "unknown endpoint")
 		return
 	}
@@ -122,7 +127,22 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 413, "request_too_large", "request body too large")
 		return
 	}
-	req := pipeline.NewRequest(pipeline.ProtocolOpenAI, r.Method, r.URL.Path, r.Header.Clone(), body)
+	protocol := pipeline.ProtocolOpenAI
+	if r.URL.Path == "/v1/messages" {
+		protocol = pipeline.ProtocolAnthropic
+	}
+	prepared, target, prepErr := s.prepare(protocol, r.URL.Path, body)
+	if prepErr != nil {
+		writeProtocolError(w, protocol, prepErr)
+		return
+	}
+	body = prepared
+	if r.Method == http.MethodGet && r.URL.Path == "/v1/models" && len(s.cfg.Models) > 0 {
+		s.writeLogicalModels(w)
+		return
+	}
+	req := pipeline.NewRequest(protocol, r.Method, r.URL.Path, r.Header.Clone(), body)
+	req.UpstreamBaseURL = target.BaseURL
 	req.Received = time.Now()
 	req.Stream = isStream(body)
 	passed, decision := s.pipeline.Request(ctx, req)
@@ -204,6 +224,75 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func (s *Server) prepare(protocol pipeline.Protocol, path string, body []byte) ([]byte, config.TargetConfig, *api.Error) {
+	if path == "/v1/models" {
+		return body, config.TargetConfig{}, nil
+	}
+	var model string
+	switch protocol {
+	case pipeline.ProtocolAnthropic:
+		value, err := anthropic.DecodeMessages(body)
+		if err != nil {
+			return nil, config.TargetConfig{}, asAPIError(err)
+		}
+		model = value.Model
+	case pipeline.ProtocolOpenAI:
+		if path == "/v1/embeddings" {
+			value, err := openai.DecodeEmbeddings(body)
+			if err != nil {
+				return nil, config.TargetConfig{}, asAPIError(err)
+			}
+			model = value.Model
+		} else {
+			value, err := openai.DecodeChat(body)
+			if err != nil {
+				return nil, config.TargetConfig{}, asAPIError(err)
+			}
+			model = value.Model
+		}
+	}
+	targets := s.cfg.Models[model]
+	if len(targets) == 0 {
+		return body, config.TargetConfig{}, nil
+	}
+	target := targets[0]
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(body, &fields); err != nil {
+		return nil, config.TargetConfig{}, api.BadRequest("invalid JSON body")
+	}
+	realModel, _ := json.Marshal(target.Model)
+	fields["model"] = realModel
+	rewritten, err := json.Marshal(fields)
+	if err != nil {
+		return nil, config.TargetConfig{}, api.BadRequest("request could not be encoded")
+	}
+	return rewritten, target, nil
+}
+
+func asAPIError(err error) *api.Error {
+	var value *api.Error
+	if errors.As(err, &value) {
+		return value
+	}
+	return api.BadRequest(err.Error())
+}
+
+func (s *Server) writeLogicalModels(w http.ResponseWriter) {
+	data := make([]map[string]any, 0, len(s.cfg.Models))
+	for name := range s.cfg.Models {
+		data = append(data, map[string]any{"id": name, "object": "model", "owned_by": "tollgate"})
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"object": "list", "data": data})
+}
+
+func writeProtocolError(w http.ResponseWriter, protocol pipeline.Protocol, err *api.Error) {
+	if protocol == pipeline.ProtocolAnthropic {
+		writeJSON(w, err.Status, map[string]any{"type": "error", "error": map[string]string{"type": err.Type, "message": err.Message}})
+		return
+	}
+	writeError(w, err.Status, err.Type, err.Message)
 }
 
 func (s *Server) writeResponse(w http.ResponseWriter, req *pipeline.Request, resp *pipeline.Response) {

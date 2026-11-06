@@ -54,3 +54,13 @@ func TestLoadRejectsInvalidSemanticConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadLogicalModels(t *testing.T) {
+	c, err := Load(writeConfig(t, "upstream: {base_url: http://localhost:1}\nmodels:\n  chat-default:\n    - {provider: openai, model: gpt-4o-mini, base_url: http://localhost:9001}\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := c.Models["chat-default"][0].Model; got != "gpt-4o-mini" {
+		t.Fatalf("model = %q", got)
+	}
+}
