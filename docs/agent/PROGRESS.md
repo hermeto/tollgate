@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 005 identity-and-policies — complete |
-| Spec Kit phase | 005 complete; T001–T012 complete; next feature 006 pricing-and-usage |
+| Current feature | 006 pricing-and-usage — complete |
+| Spec Kit phase | 006 complete; T001–T008 complete; next feature 007 rate-limiting |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 006 (`006-pricing-and-usage`): pricing, budgets and usage accounting |
+| Next step | feature 007 (`007-rate-limiting`): request and token windows |
 
 ## Features (merge order)
 
@@ -33,6 +33,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (6/6) | `003-local-stack-iter5` | E2E tests, CI gate, overhead check, docs | pending | [iter5](pr-bodies/003-local-stack-iter5.md) |
 | 004 | `004-protocol-api` | canonical model, OpenAI/Anthropic adapters, logical models, translation, SDK compatibility | [#21](https://github.com/hermeto/tollgate/pull/21) ready | [PR body](pr-bodies/004-protocol-api.md) |
 | 005 | `005-identity-and-policies` | virtual keys, policy schemas/inheritance, reload, allowlists, CLI and gateway enforcement | pending | [PR body](pr-bodies/005-identity-and-policies.md) |
+| 006 | `006-pricing-and-usage` | effective-dated pricing, cost calculation, content-free usage events, bounded async spool | pending | [PR body](pr-bodies/006-pricing-and-usage.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook

@@ -1,0 +1,9 @@
+provider: openai
+prices:
+  - model: gpt-4o-mini
+    effective_at: "2026-01-01T00:00:00Z"
+    currency: USD
+    input_usd_per_million: 0.15
+    output_usd_per_million: 0.60
+    cached_input_usd_per_million: 0.075
+    source: https://example.test/pricing/openai
