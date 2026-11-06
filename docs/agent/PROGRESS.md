@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 004 protocol-api — slice 1 implemented |
-| Spec Kit phase | 004 implementation; T001–T014 complete; T015 awaits gateway SDK/60s fuzz validation |
-| Last commit | `feat(api): add canonical multi-protocol adapters` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 004 slice 2: SDK gateway compatibility, full stream translation and fuzz validation |
+| Current feature | 004 protocol-api — complete |
+| Spec Kit phase | 004 complete; T001–T015 complete; next feature 005 identity-and-policies |
+| Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
+| Next step | feature 005 (`005-identity-and-policies`): virtual keys and declarative policies |
 
 ## Features (merge order)
 
@@ -31,7 +31,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 003 (4/6) | `003-local-stack-iter3` | OTel telemetry, health/readiness, ops metrics, probe | [#18](https://github.com/hermeto/tollgate/pull/18) ready | [iter3](pr-bodies/003-local-stack-iter3.md) |
 | 003 (5/6) | `003-local-stack-iter4` | pinned Compose stack, up/down/smoke | pending | [iter4](pr-bodies/003-local-stack-iter4.md) |
 | 003 (6/6) | `003-local-stack-iter5` | E2E tests, CI gate, overhead check, docs | pending | [iter5](pr-bodies/003-local-stack-iter5.md) |
-| 004 (1/2) | `004-protocol-api` | canonical model, OpenAI/Anthropic adapters, logical models, translation base | pending | — |
+| 004 | `004-protocol-api` | canonical model, OpenAI/Anthropic adapters, logical models, translation, SDK compatibility | [#21](https://github.com/hermeto/tollgate/pull/21) ready | [PR body](pr-bodies/004-protocol-api.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook

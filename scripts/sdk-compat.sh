@@ -9,8 +9,8 @@ OPENAI_PORT="${SIM_OPENAI_PORT:-19101}"
 ANTHROPIC_PORT="${SIM_ANTHROPIC_PORT:-19102}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-if [[ "${TARGET}" != "sim" ]]; then
-  echo "sdk-compat: TARGET=${TARGET} is not available yet (TARGET=gateway arrives with feature 004)" >&2
+if [[ "${TARGET}" != "sim" && "${TARGET}" != "gateway" ]]; then
+  echo "sdk-compat: unknown TARGET=${TARGET} (expected sim or gateway)" >&2
   exit 2
 fi
 
@@ -43,8 +43,20 @@ start_sim() {
 
 start_sim openai "${OPENAI_PORT}"
 start_sim anthropic "${ANTHROPIC_PORT}"
-export OPENAI_BASE_URL="http://127.0.0.1:${OPENAI_PORT}/v1"
-export ANTHROPIC_BASE_URL="http://127.0.0.1:${ANTHROPIC_PORT}"
+if [[ "${TARGET}" == gateway ]]; then
+  export TOLLGATE_SDK_UPSTREAM_KEY=tg-example-sdk-compat
+  "${workdir}/tollgate" serve --config "${ROOT}/config/gateway-sdk.yaml" 2>"${workdir}/gateway.log" &
+  pids+=("$!")
+  for _ in $(seq 1 50); do
+    if curl -fsS "http://127.0.0.1:18081/readyz" >/dev/null 2>&1; then break; fi
+    sleep 0.1
+  done
+  export OPENAI_BASE_URL="http://127.0.0.1:18080/v1"
+  export ANTHROPIC_BASE_URL="http://127.0.0.1:18080"
+else
+  export OPENAI_BASE_URL="http://127.0.0.1:${OPENAI_PORT}/v1"
+  export ANTHROPIC_BASE_URL="http://127.0.0.1:${ANTHROPIC_PORT}"
+fi
 # Make sure no real provider key can be picked up by an SDK default.
 unset OPENAI_API_KEY ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN OPENAI_ORG_ID OPENAI_PROJECT_ID || true
 

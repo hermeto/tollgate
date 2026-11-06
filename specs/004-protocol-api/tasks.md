@@ -38,4 +38,4 @@ description: "Tasks for multi-protocol API and logical models"
 ## Phase 7: Verification
 
 - [x] T014 [P] Add native fuzz tests for JSON adapters and SSE events.
-- [ ] T015 Run SDK compatibility, race tests and 60-second fuzz validation; update docs/agent/PROGRESS.md.
+- [x] T015 Run SDK compatibility, race tests and 60-second fuzz validation; update docs/agent/PROGRESS.md.

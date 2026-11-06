@@ -1,0 +1,15 @@
+listen:
+  api: ":18080"
+  ops: ":18081"
+upstream:
+  base_url: http://127.0.0.1:19101
+  credential_env: TOLLGATE_SDK_UPSTREAM_KEY
+models:
+  gpt-4o-mini:
+    - {provider: openai, model: gpt-4o-mini, base_url: http://127.0.0.1:19101}
+  text-embedding-3-small:
+    - {provider: openai, model: text-embedding-3-small, base_url: http://127.0.0.1:19101}
+  claude-sonnet-5-5:
+    - {provider: anthropic, model: claude-sonnet-5-5, base_url: http://127.0.0.1:19102}
+telemetry:
+  service_name: tollgate-sdk-compat
