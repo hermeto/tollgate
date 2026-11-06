@@ -34,7 +34,14 @@ func New(c config.UpstreamConfig) (*Client, error) {
 
 func (c *Client) Forward(ctx context.Context, req *pipeline.Request) (*http.Response, error) {
 	u := *c.base
-	u.Path = strings.TrimRight(c.base.Path, "/") + req.Path
+	if req.UpstreamBaseURL != "" {
+		base, err := url.Parse(req.UpstreamBaseURL)
+		if err != nil {
+			return nil, err
+		}
+		u = *base
+	}
+	u.Path = strings.TrimRight(u.Path, "/") + req.Path
 	body := io.NopCloser(bytes.NewReader(req.Body))
 	r, err := http.NewRequestWithContext(ctx, req.Method, u.String(), body)
 	if err != nil {

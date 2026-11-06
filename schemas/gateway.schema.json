@@ -60,6 +60,22 @@
         "service_name": { "type": "string", "minLength": 1 },
         "traces_sample_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
       }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["provider", "model", "base_url"],
+          "properties": {
+            "provider": { "enum": ["openai", "anthropic"] },
+            "model": { "type": "string", "minLength": 1 },
+            "base_url": { "type": "string", "format": "uri", "minLength": 1 }
+          }
+        }
+      }
     }
   },
   "$defs": {

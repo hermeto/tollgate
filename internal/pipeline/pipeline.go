@@ -32,8 +32,9 @@ type Request struct {
 	Stream   bool        // client asked for a streamed response
 	Received time.Time   // arrival at the gateway
 
-	UpstreamHeader http.Header // extra headers sent upstream
-	ResponseHeader http.Header // extra headers sent to the client on every outcome
+	UpstreamHeader  http.Header // extra headers sent upstream
+	UpstreamBaseURL string      // optional per-logical-model target override
+	ResponseHeader  http.Header // extra headers sent to the client on every outcome
 
 	Records []Record // one entry per hook call, in call order
 }

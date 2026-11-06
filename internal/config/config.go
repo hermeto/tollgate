@@ -28,13 +28,14 @@ func (d *Duration) UnmarshalJSON(data []byte) error {
 func (d Duration) String() string { return time.Duration(d).String() }
 
 type Config struct {
-	Listen       ListenConfig       `json:"listen"`
-	Upstream     UpstreamConfig     `json:"upstream"`
-	Limits       LimitsConfig       `json:"limits"`
-	Shutdown     ShutdownConfig     `json:"shutdown"`
-	Pipeline     []string           `json:"pipeline"`
-	Dependencies []DependencyConfig `json:"dependencies"`
-	Telemetry    TelemetryConfig    `json:"telemetry"`
+	Listen       ListenConfig              `json:"listen"`
+	Upstream     UpstreamConfig            `json:"upstream"`
+	Limits       LimitsConfig              `json:"limits"`
+	Shutdown     ShutdownConfig            `json:"shutdown"`
+	Pipeline     []string                  `json:"pipeline"`
+	Dependencies []DependencyConfig        `json:"dependencies"`
+	Telemetry    TelemetryConfig           `json:"telemetry"`
+	Models       map[string][]TargetConfig `json:"models"`
 }
 type ListenConfig struct {
 	API string `json:"api"`
@@ -67,6 +68,11 @@ type TelemetryConfig struct {
 	ServiceName       string  `json:"service_name"`
 	TracesSampleRatio float64 `json:"traces_sample_ratio"`
 }
+type TargetConfig struct {
+	Provider string `json:"provider"`
+	Model    string `json:"model"`
+	BaseURL  string `json:"base_url"`
+}
 
 // Load reads path, applies documented defaults, and validates semantic constraints.
 func Load(path string) (Config, error) {
@@ -91,6 +97,7 @@ func Default() Config {
 		Shutdown:  ShutdownConfig{DrainTimeout: Duration(30 * time.Second)},
 		Pipeline:  []string{"request_id", "timing"},
 		Telemetry: TelemetryConfig{ServiceName: "tollgate", TracesSampleRatio: 1},
+		Models:    map[string][]TargetConfig{},
 		Upstream:  UpstreamConfig{Timeouts: TimeoutConfig{Connect: Duration(2 * time.Second), ResponseHeader: Duration(60 * time.Second), Idle: Duration(90 * time.Second)}},
 	}
 }
@@ -125,6 +132,16 @@ func (c Config) Validate() error {
 	for i, dep := range c.Dependencies {
 		if dep.Name == "" || dep.Address == "" || (dep.Kind != "redis" && dep.Kind != "postgres") || (dep.FailMode != "open" && dep.FailMode != "closed") {
 			return fmt.Errorf("dependencies[%d] is invalid", i)
+		}
+	}
+	for logical, targets := range c.Models {
+		if logical == "" || len(targets) == 0 {
+			return fmt.Errorf("models[%q] must have at least one target", logical)
+		}
+		for i, target := range targets {
+			if (target.Provider != "openai" && target.Provider != "anthropic") || target.Model == "" || target.BaseURL == "" {
+				return fmt.Errorf("models[%q][%d] is invalid", logical, i)
+			}
 		}
 	}
 	return nil
