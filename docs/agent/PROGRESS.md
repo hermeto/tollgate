@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 008 budgets-and-chargeback — complete |
-| Spec Kit phase | 008 complete; T001–T005 complete; next feature 009 routing-and-fallback |
+| Current feature | 009 routing-and-fallback — complete |
+| Spec Kit phase | 009 complete; T001–T004 complete; next feature 010 observability |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 009 (`009-routing-and-fallback`): weighted routing and retries |
+| Next step | feature 010 (`010-observability`): telemetry dashboards and alerts |
 
 ## Features (merge order)
 
@@ -36,6 +36,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 006 | `006-pricing-and-usage` | effective-dated pricing, cost calculation, content-free usage events, bounded async spool | pending | [PR body](pr-bodies/006-pricing-and-usage.md) |
 | 007 | `007-rate-limiting` | local token bucket admission and deterministic reset metadata | pending | [PR body](pr-bodies/007-rate-limiting.md) |
 | 008 | `008-budgets-and-chargeback` | spend reservations, soft/hard budget decisions, FOCUS-aligned CSV export | pending | [PR body](pr-bodies/008-budgets-and-chargeback.md) |
+| 009 | `009-routing-and-fallback` | weighted healthy-target selection and bounded retry backoff | pending | [PR body](pr-bodies/009-routing-and-fallback.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
