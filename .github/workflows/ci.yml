@@ -97,6 +97,31 @@ jobs:
       # Official OpenAI and Anthropic SDKs (Python, TypeScript, Go) against both simulators.
       - run: make sdk-compat
 
+  e2e-local:
+    name: e2e-local
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: run local stack and end-to-end tests
+        run: |
+          set -euo pipefail
+          trap 'make down || true' EXIT
+          make up
+          make smoke
+          make e2e
+          scripts/overhead-check.sh
+      - name: show stack logs on failure
+        if: failure()
+        run: docker compose --project-name tollgate --file deploy/compose/compose.yaml logs --no-color
+
   pr-title:
     name: pr-title
     if: github.event_name == 'pull_request'
@@ -155,7 +180,7 @@ jobs:
   ci-gate:
     name: ci-gate
     if: always()
-    needs: [lint, test, security, sdk-compat, pr-title, dco, dependency-review]
+    needs: [lint, test, security, sdk-compat, e2e-local, pr-title, dco, dependency-review]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

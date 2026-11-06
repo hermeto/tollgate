@@ -34,3 +34,35 @@ Built-in Stages:
 | `BenchmarkChunkNoHooks` (per streamed event, no chunk hooks) | 4 ns/op | 0 |
 
 Run them with `go test ./internal/pipeline/ -bench . -run '^$' -benchmem`.
+
+## Local Compose profile
+
+The reproducible local profile starts the gateway, both deterministic simulators, Valkey, PostgreSQL,
+the OpenTelemetry Collector, Prometheus, Tempo, Loki and Grafana. All published ports bind to
+`127.0.0.1`; provider calls remain local and use the fake key `tg-example-upstream`.
+
+```bash
+make up       # build the pinned gateway image and wait for readiness
+make smoke    # non-streaming + streaming request, metrics and Tempo trace
+make e2e      # run the stack-gated Go tests
+make down     # stop and remove containers, network and volumes
+```
+
+URLs:
+
+| Service | URL |
+| --- | --- |
+| Gateway API | <http://127.0.0.1:8080> |
+| Health, readiness and metrics | <http://127.0.0.1:8081> |
+| Prometheus | <http://127.0.0.1:9090> |
+| Tempo | <http://127.0.0.1:3200> |
+| Grafana | <http://127.0.0.1:3000> |
+
+`make up` polls readiness from the host because some observability images do not include a shell or
+HTTP client. If it fails, inspect `docker compose --project-name tollgate --file deploy/compose/compose.yaml
+logs --no-color`, then rerun `make down` before retrying. A fail-closed Valkey or PostgreSQL check keeps
+`/readyz` at 503 until the service is reachable.
+
+The stack uses image index digests recorded in
+[`specs/003-local-stack/research.md`](../specs/003-local-stack/research.md); update the digest and its
+architecture evidence together when upgrading an image.

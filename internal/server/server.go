@@ -126,6 +126,7 @@ func (s *Server) handle(w http.ResponseWriter, r *http.Request) {
 	req.Received = time.Now()
 	req.Stream = isStream(body)
 	passed, decision := s.pipeline.Request(ctx, req)
+	span.SetAttributes(attribute.String("tollgate.request_id", req.ID))
 	for stage, duration := range pipeline.StageTime(req) {
 		s.telemetry.Stages.Record(ctx, duration.Seconds(), otelmetric.WithAttributes(attribute.String("stage", stage)))
 	}

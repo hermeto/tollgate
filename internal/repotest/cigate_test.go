@@ -6,7 +6,7 @@ import (
 )
 
 func TestCIGate(t *testing.T) {
-	allSuccess := `{"lint":{"result":"success"},"test":{"result":"success"},"security":{"result":"success"},"sdk-compat":{"result":"success"},` +
+	allSuccess := `{"lint":{"result":"success"},"test":{"result":"success"},"security":{"result":"success"},"sdk-compat":{"result":"success"},"e2e-local":{"result":"success"},` +
 		`"pr-title":{"result":"success"},"dco":{"result":"success"},"dependency-review":{"result":"success"}}`
 	cases := []struct {
 		name     string
@@ -20,7 +20,7 @@ func TestCIGate(t *testing.T) {
 		{"cancelled fails", "pull_request", `{"lint":{"result":"cancelled"}}`, 1, "lint: cancelled"},
 		{"skipped fails on PR", "pull_request", `{"lint":{"result":"success"},"dco":{"result":"skipped"}}`, 1, "dco: skipped"},
 		{"pr-only skipped on push passes", "push",
-			`{"lint":{"result":"success"},"test":{"result":"success"},"pr-title":{"result":"skipped"},"dco":{"result":"skipped"},"dependency-review":{"result":"skipped"}}`,
+			`{"lint":{"result":"success"},"test":{"result":"success"},"e2e-local":{"result":"success"},"pr-title":{"result":"skipped"},"dco":{"result":"skipped"},"dependency-review":{"result":"skipped"}}`,
 			0, "all required jobs passed"},
 		{"non pr-only skipped on push fails", "push", `{"lint":{"result":"skipped"},"dco":{"result":"skipped"}}`, 1, "lint: skipped"},
 		{"pull_request_target treated as PR", "pull_request_target", `{"dco":{"result":"skipped"}}`, 1, "dco: skipped"},
