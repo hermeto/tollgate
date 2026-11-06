@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 012 audit-log — complete |
-| Spec Kit phase | 012 complete; T001–T004 complete; next feature 013 response-cache |
+| Current feature | 013 response-cache — complete |
+| Spec Kit phase | 013 complete; T001–T004 complete; next feature 014 envoy-extproc-adapter |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 013 (`013-response-cache`): exact response caching |
+| Next step | feature 014 (`014-envoy-extproc-adapter`): Envoy external processing adapter |
 
 ## Features (merge order)
 
@@ -40,6 +40,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 010 | `010-observability` | normalized GenAI attributes, dashboards and overhead alert | pending | [PR body](pr-bodies/010-observability.md) |
 | 011 | `011-pii-redaction` | deterministic synthetic PII detection and privacy-safe redaction metadata | pending | [PR body](pr-bodies/011-pii-redaction.md) |
 | 012 | `012-audit-log` | content-free hash-chained governance events and verification | pending | [PR body](pr-bodies/012-audit-log.md) |
+| 013 | `013-response-cache` | bounded exact response cache with TTL and content-addressed keys | pending | [PR body](pr-bodies/013-response-cache.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
