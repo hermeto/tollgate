@@ -1,0 +1,1 @@
+{"title":"Tollgate governance","panels":[{"title":"Requests","type":"timeseries","targets":[{"expr":"tollgate_requests_total"}]},{"title":"Gateway overhead","type":"timeseries","targets":[{"expr":"tollgate_gateway_overhead_seconds"}]}],"schemaVersion":39,"version":1}

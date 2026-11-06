@@ -1,0 +1,8 @@
+groups:
+  - name: tollgate-governance
+    rules:
+      - alert: TollgateHighGatewayOverhead
+        expr: histogram_quantile(0.99, tollgate_gateway_overhead_seconds_bucket) > 0.015
+        for: 5m
+        labels:
+          severity: warning
