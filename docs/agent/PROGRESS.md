@@ -6,10 +6,10 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 
 | Field | Value |
 | --- | --- |
-| Current feature | 010 observability — complete |
-| Spec Kit phase | 010 complete; T001–T005 complete; next feature 011 pii-redaction |
+| Current feature | 011 pii-redaction — complete |
+| Spec Kit phase | 011 complete; T001–T004 complete; next feature 012 audit-log |
 | Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | feature 011 (`011-pii-redaction`): synthetic PII detection and redaction |
+| Next step | feature 012 (`012-audit-log`): tamper-evident audit events |
 
 ## Features (merge order)
 
@@ -38,6 +38,7 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | 008 | `008-budgets-and-chargeback` | spend reservations, soft/hard budget decisions, FOCUS-aligned CSV export | pending | [PR body](pr-bodies/008-budgets-and-chargeback.md) |
 | 009 | `009-routing-and-fallback` | weighted healthy-target selection and bounded retry backoff | pending | [PR body](pr-bodies/009-routing-and-fallback.md) |
 | 010 | `010-observability` | normalized GenAI attributes, dashboards and overhead alert | pending | [PR body](pr-bodies/010-observability.md) |
+| 011 | `011-pii-redaction` | deterministic synthetic PII detection and privacy-safe redaction metadata | pending | [PR body](pr-bodies/011-pii-redaction.md) |
 
 PR metadata: title `<type>(<area>): <summary> (#NNN)`, base = previous feature
 branch (`main` for 001), labels `kind/*`, `area/*`, `spec`, `stacked` (not 001), milestone per playbook
