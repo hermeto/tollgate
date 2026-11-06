@@ -1,0 +1,24 @@
+listen:
+  api: ":8080"
+  ops: ":8081"
+upstream:
+  base_url: http://sim-openai:9001
+  credential_env: TOLLGATE_UPSTREAM_OPENAI_KEY
+limits:
+  max_body_bytes: 8388608
+shutdown:
+  drain_timeout: 30s
+pipeline: [request_id, timing]
+dependencies:
+  - name: valkey
+    kind: redis
+    address: valkey:6379
+    fail_mode: closed
+  - name: postgres
+    kind: postgres
+    address: postgres:5432
+    fail_mode: closed
+telemetry:
+  otlp_endpoint: http://otel-collector:4318
+  service_name: tollgate
+  traces_sample_ratio: 1
