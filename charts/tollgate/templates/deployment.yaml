@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tollgate.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: { app.kubernetes.io/name: {{ include "tollgate.name" . }} }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: {{ include "tollgate.name" . }} }
+    spec:
+      containers:
+        - name: tollgate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{ name: http, containerPort: 8080 }]
+          readinessProbe: { httpGet: { path: /readyz, port: http } }
+          livenessProbe: { httpGet: { path: /healthz, port: http } }
+          resources: {{- toYaml .Values.resources | nindent 12 }}
