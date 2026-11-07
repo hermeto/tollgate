@@ -8,8 +8,8 @@ Resume instructions: read this file and [`PLAYBOOK.md`](PLAYBOOK.md), then conti
 | --- | --- |
 | Current feature | 018 docs-and-release — complete |
 | Spec Kit phase | 018 complete; T001–T004 complete; all 18 features complete |
-| Last commit | `feat(api): add gateway SDK compatibility` on `004-protocol-api` (see `git log -1`) |
-| Next step | Final verification of all stacked branches and open PRs |
+| Last commit | `fix(deps): bump golang.org/x/net to v0.62.0 to remediate CVE-2026-78661` on `018-docs-and-release` (see `git log -1`) |
+| Next step | Complete — all 18 features stacked, verified, and documented; ready for bottom-up review and merge |
 
 ## Features (merge order)
 
