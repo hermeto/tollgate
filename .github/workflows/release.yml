@@ -1,11 +1,18 @@
 # Builds and publishes a release: binaries, distroless multi-arch image, SBOMs, keyless signatures
-# and build provenance. Runs only for version tags (pushed manually or created by release-please).
+# and build provenance. Runs for version tags (pushed manually or created by release-please)
+# or via manual workflow_dispatch.
 name: release
 
 on:
   push:
     tags: ["v*"]
   workflow_call:
+    inputs:
+      tag:
+        description: Tag to release (for example v0.1.0)
+        required: true
+        type: string
+  workflow_dispatch:
     inputs:
       tag:
         description: Tag to release (for example v0.1.0)
@@ -19,8 +26,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+      - run: go test -race ./...
+
   goreleaser:
     name: goreleaser
+    needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:

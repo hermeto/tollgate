@@ -10,10 +10,23 @@ spec:
     metadata:
       labels: { app.kubernetes.io/name: {{ include "tollgate.name" . }} }
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: tollgate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports: [{ name: http, containerPort: 8080 }]
           readinessProbe: { httpGet: { path: /readyz, port: http } }
           livenessProbe: { httpGet: { path: /healthz, port: http } }
